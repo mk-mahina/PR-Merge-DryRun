@@ -1,0 +1,26 @@
+name: Manual Merge Approval Check
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run merge approval check
+        run: python pr-merge-plugin.py
+
+      - name: Set status check
+        uses: github/set-status-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          state: ${{ job.status }}
+          description: "Merge approval check"
