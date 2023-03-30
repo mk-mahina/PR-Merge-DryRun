@@ -19,7 +19,7 @@ jobs:
 
       - name: Check pull request review status
         id: pr-check
-        uses: actions/wait-for-command@v2
+        uses: mk-mahina/wait-for-command@v2.1
         with:
           timeout: 10m
           continue-on-error: true
