@@ -31,7 +31,7 @@ jobs:
         if: ${{ steps.pr-check.outputs.num_approvals == 1 }}
 
       - name: Set status check
-        uses: actions/github@v2.3.4
+        uses: actions/github@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: mk-mahina/PR-Merge-DryRun
