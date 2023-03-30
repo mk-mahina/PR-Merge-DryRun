@@ -24,16 +24,16 @@ jobs:
           timeout: 10m
           continue-on-error: true
           args: |
-            sh -c 'while [ "$(curl -s -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" ${{ github.api_url }}/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews | jq ".[] | select(.state == \"APPROVED\") | .user.login" | sort -u | wc -l)" -lt 1 ]; do sleep 10; done; echo "At least 1 approval received."'
+            sh -c 'while [ "$(curl -s -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.SECRET_TOKEN }}" ${{ github.api_url }}/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews | jq ".[] | select(.state == \"APPROVED\") | .user.login" | sort -u | wc -l)" -lt 1 ]; do sleep 10; done; echo "At least 1 approval received."'
 
       - name: Run merge approval check
         run: python pr-merge-plugin.py
         if: ${{ steps.pr-check.outputs.num_approvals == 1 }}
 
       - name: Set status check
-        uses: actions/github@v5.1.1
+        uses: actions/github@v5.2.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.SECRET_TOKEN }}
           repository: mk-mahina/PR-Merge-DryRun
           name: "Merge approval check"
           sha: ${{ github.event.pull_request.head.sha }}
