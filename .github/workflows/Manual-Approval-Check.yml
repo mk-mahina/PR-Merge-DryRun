@@ -1,9 +1,17 @@
 name: Manual Review
+
 on:
   pull_request_review:
     types: [submitted]
     branches:
       - main
+  pull_request_review:
+    types: [submitted]
+    branches:
+      - main
+    review_states:
+      - approved
+
 jobs:
   assign-reviewer:
     if: github.event.pull_request.review.state == 'approved' && contains(github.event.pull_request.labels.*.name, 'approved')
