@@ -13,30 +13,9 @@ jobs:
     if: github.event.pull_request.review.state == 'approved' && contains(github.event.pull_request.labels.*.name, 'approved')
     runs-on: ubuntu-latest
     steps:
-      - name: Get latest approved review
-        uses: andymckay/request-approval@v1
-        with:
-          token: ${{ secrets.SECRET_TOKEN }}
-          pr-number: ${{ github.event.pull_request.number }}
       - name: Assign reviewer
-        uses: softprops/action-gh-release@v1
-        with:
-          assignee: armin-mahina
-          repo: mk-mahina/PR-Merge-DryRun
-          issue_number: ${{ github.event.pull_request.number }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
-  
-  check-approval:
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.review.state == 'approved' && contains(github.event.pull_request.labels.*.name, 'approved')
-    needs: assign-reviewer
-    steps:
-      - name: Check approval status
-        uses: peter-evans/wait-for-approval@v1.0.1
-        with:
-          pull-request-number: ${{ github.event.pull_request.number }}
-          check-rate: 60
-          timeout: 1800 # 30 minutes
+        run: |
+          curl -X POST -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/issues/${{ github.event.pull_request.number }}/assignees -d '{"assignees":["armin-mahina"]}'
+          curl -X POST -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/issues/${{ github.event.pull_request.number }}/labels -d '["awaiting-manual-review"]'
         env:
           GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
