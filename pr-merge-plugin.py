@@ -2,7 +2,7 @@ import os
 from github import Github
 
 # get the authentication token from environment variable
-token = os.environ['GITHUB_TOKEN']
+token = os.environ['SECRET_TOKEN']
 
 # create a Github object
 g = Github(token)
