@@ -31,10 +31,13 @@ jobs:
         if: ${{ steps.pr-check.outputs.num_approvals == 1 }}
 
       - name: Set status check
-        uses: mk-mahina/PR-Merge-DryRun@v2
+        uses: actions/github@v2.4.2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: mk-mahina/PR-Merge-DryRun
+          name: "Merge approval check"
+          sha: ${{ github.event.pull_request.head.sha }}
+          context: "merge-approval-check"
           state: ${{ job.status }}
           description: "Merge approval check"
-          context: "merge-approval-check"
         if: ${{ steps.pr-check.outputs.num_approvals == 1 }}
