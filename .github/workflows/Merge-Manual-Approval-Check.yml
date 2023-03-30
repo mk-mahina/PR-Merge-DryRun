@@ -30,14 +30,4 @@ jobs:
         run: python pr-merge-plugin.py
         if: ${{ steps.pr-check.outputs.num_approvals == 1 }}
 
-      - name: Set status check
-        uses: actions/github@v5.2.0
-        with:
-          github-token: ${{ secrets.SECRET_TOKEN }}
-          repository: mk-mahina/PR-Merge-DryRun
-          name: "Merge approval check"
-          sha: ${{ github.event.pull_request.head.sha }}
-          context: "merge-approval-check"
-          state: ${{ job.status }}
-          description: "Merge approval check"
-        if: ${{ steps.pr-check.outputs.num_approvals == 1 }}
+
