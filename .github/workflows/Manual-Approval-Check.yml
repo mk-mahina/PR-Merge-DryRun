@@ -21,6 +21,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
 
   check-approval:
+    name: Check Manual Approval
     runs-on: ubuntu-latest
     if: github.event.pull_request.review.state == 'approved' && contains(github.event.pull_request.labels.*.name, 'awaiting-manual-review')
     needs: assign-reviewer
