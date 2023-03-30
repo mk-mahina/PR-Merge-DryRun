@@ -9,7 +9,7 @@ on:
 
 jobs:
   assign-reviewer:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == false && contains(github.event.pull_request.labels.*.name, 'approved')
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == false && contains(github.event.pull_request.labels.*.name, 'approved') && github.event.pull_request.review_decision == 'approved'
     runs-on: ubuntu-latest
     steps:
       - name: Get latest approved review
@@ -28,7 +28,7 @@ jobs:
   
   check-approval:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == false && contains(github.event.pull_request.labels.*.name, 'approved')
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == false && contains(github.event.pull_request.labels.*.name, 'approved') && github.event.pull_request.review_decision == 'approved'
     needs: assign-reviewer
     steps:
       - name: Check approval status
