@@ -17,16 +17,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Check pull request review status
-        id: pr-check
-        uses: mk-mahina/wait-for-command@v2.1
-        with:
-          timeout: 10m
-          continue-on-error: true
-          args: |
-            sh -c 'while [ "$(curl -s -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.SECRET_TOKEN }}" ${{ github.api_url }}/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews | jq ".[] | select(.state == \"APPROVED\") | .user.login" | sort -u | wc -l)" -lt 1 ]; do sleep 10; done; echo "At least 1 approval received."'
-
-      - name: Run merge approval check
+        - name: Run merge approval check
         run: python pr-merge-plugin.py
         if: ${{ steps.pr-check.outputs.num_approvals == 1 }}
 
