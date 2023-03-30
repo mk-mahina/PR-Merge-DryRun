@@ -19,3 +19,20 @@ jobs:
           curl -X POST -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/issues/${{ github.event.pull_request.number }}/labels -d '["awaiting-manual-review"]'
         env:
           GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
+
+  check-approval:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.review.state == 'approved' && contains(github.event.pull_request.labels.*.name, 'awaiting-manual-review')
+    needs: assign-reviewer
+    steps:
+      - name: Check for manual approval
+        run: |
+          if curl -s -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/pulls/${{ github.event.pull_request.number }}/reviews | jq '.[] | select(.state == "APPROVED" and .user.login == "armin-mahina")' > /dev/null
+          then
+            echo "PR has been manually approved by armin-mahina"
+          else
+            echo "PR is still awaiting manual approval"
+            exit 1
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
