@@ -9,9 +9,14 @@ on:
 
 jobs:
   assign-reviewer:
-    if: github.event.review.state == 'approved'
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == false && contains(github.event.pull_request.labels.*.name, 'approved')
     runs-on: ubuntu-latest
     steps:
+      - name: Get latest approved review
+        uses: andymckay/request-approval@v1
+        with:
+          token: ${{ secrets.SECRET_TOKEN }}
+          pr-number: ${{ github.event.pull_request.number }}
       - name: Assign reviewer
         uses: softprops/action-gh-release@v1
         with:
@@ -19,11 +24,11 @@ jobs:
           repo: mk-mahina/PR-Merge-DryRun
           issue_number: ${{ github.event.pull_request.number }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
   
   check-approval:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == false
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == false && contains(github.event.pull_request.labels.*.name, 'approved')
     needs: assign-reviewer
     steps:
       - name: Check approval status
@@ -31,6 +36,6 @@ jobs:
         with:
           pull-request-number: ${{ github.event.pull_request.number }}
           check-rate: 60
-          timeout: 1800 #30 minutes
+          timeout: 1800 # 30 minutes
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
