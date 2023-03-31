@@ -39,4 +39,4 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           echo "GIT_TOKEN: ${{ secrets.GIT_TOKEN }}"          
-          python pr-merge.py
+          python pr-merge.py ${{ secrets.GIT_TOKEN }}
