@@ -3,8 +3,6 @@ import requests
 import json
 import time
 
-#os.environ['SECRET_TOKEN'] = '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'
-
 repo_url = "https://github.com/mk-mahina/PR-Merge-DryRun/"
 pr_number = os.environ['PR_NUMBER']
 github_token = os.environ['SECRET_TOKEN']
