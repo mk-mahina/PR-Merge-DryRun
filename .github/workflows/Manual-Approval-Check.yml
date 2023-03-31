@@ -17,4 +17,4 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run plugin checks
-        run: python Manual-Approval-Check.py
+        run: python pr-merge.py
