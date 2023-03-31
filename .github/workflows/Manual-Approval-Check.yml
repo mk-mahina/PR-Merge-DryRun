@@ -1,44 +1,31 @@
-name: Manual Review
+name: Merge Checks
 
 on:
-  pull_request_review:
-    types: [submitted]
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
     branches:
       - "*"
-    review_states:
-      - approved
+    # Trigger the job only if the pull request is in the "approved" state
+    # Modify the name of the branch protection rule if necessary
+    # Modify the name of the "approved" status if necessary
+    # Modify the name of the user/group that approves the pull request if necessary
+    # See https://docs.github.com/en/rest/reference/repos#get-a-branch-protection-rule for more information
+    condition: ${{ github.event.pull_request.statuses[0].context == 'status-name' && github.event.pull_request.labels.*.name contains 'approved' && contains(github.event.pull_request.requested_reviewers.*.login, 'approver-username') }}
 
 jobs:
-  assign-reviewer:
-    if: github.event.pull_request.review.state == 'approved' && contains(github.event.pull_request.labels.*.name, 'approved')
+  merge-checks:
     runs-on: ubuntu-latest
-    steps:
-      - name: Assign reviewer
-        run: |
-          # Assign the PR to "armin-mahina"
-          curl -X POST -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/issues/${{ github.event.pull_request.number }}/assignees -d '{"assignees":["armin-mahina"]}'
-          
-          # Add "waiting for manual approval" label to the PR
-          curl -X POST -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/issues/${{ github.event.pull_request.number }}/labels -d '["waiting for manual approval"]'
-          
-          # Set the status of the PR to "waiting for manual approval"
-          curl -X POST -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/statuses/${{ github.sha }} -d '{"state": "pending", "description": "waiting for manual approval", "context": "merge gates/checks"}'
-          
-        env:
-          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
 
-  check-approval:
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.review.state == 'approved' && contains(github.event.pull_request.labels.*.name, 'waiting for manual approval')
-    needs: assign-reviewer
     steps:
-      - name: Check for manual approval
-        run: |
-          # Check if the PR has been manually approved by "armin-mahina"
-          if curl -s -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/pulls/${{ github.event.pull_request.number }}/reviews | jq '.[] | select(.state == "APPROVED" and .user.login == "armin-mahina")' > /dev/null
-          then
-            # Set the status of the PR to "manual approval given"
-            curl -X POST -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/statuses/${{ github.sha }} -d '{"state": "success", "description": "manual approval given", "context": "merge gates/checks"}'
-          else
-            # Set the status of the PR to "manual approval required"
-            curl -X POST -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9 # or whichever version of Python your plugin requires
+
+      - name: Install plugin dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run plugin checks
+        run: python Manual-Approval-Check.py
