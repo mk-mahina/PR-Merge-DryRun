@@ -1,42 +1,47 @@
-name: Merge Checks
+name: Merge Check
 
 on:
+  pull_request_review:
+    types: [submitted]
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize]
 
 jobs:
-  merge-checks:
+  merge-check:
     runs-on: ubuntu-latest
-
-    env:
-      GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Install plugin dependencies
-        run: pip install -r requirements.txt
-
-      - name: Check if PR is approved
-        id: pr-check
-        run: |
-          echo "GIT_TOKEN: ${{ secrets.GIT_TOKEN }}"
-          pr_url="${{ github.event.pull_request.url }}"
-          approval_url="${pr_url}/reviews?state=APPROVED"
-          response=$(curl -s -H "Authorization: Bearer ${{ secrets.GIT_TOKEN }}" "$approval_url")
-          approved_count=$(echo "$response" | jq '. | length')
-          if [[ "$approved_count" -gt 0 ]]; then
-            echo ::set-output name=approved::true
-          else
-            echo ::set-output name=approved::false
-          fi
-        shell: bash
-
-      - name: Assign PR to armin-mahina if approved
-        if: ${{ steps.pr-check.outputs.approved == 'true' }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install Git
+        run: sudo apt-get update && sudo apt-get install git -y
+      - name: Merge check
         env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
+          USER_TO_ASSIGN: armin-mahina
+          GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
         run: |
-          echo "GIT_TOKEN: ${{ secrets.GIT_TOKEN }}"          
-          python pr-merge.py ${{ secrets.GIT_TOKEN }}
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request_review" ]]; then
+            if [[ "${{ github.event.review.state }}" == "approved" ]]; then
+              PR_NUMBER="${{ github.event.pull_request.number }}"
+              PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+              git fetch origin pull/"${PR_NUMBER}"/head:"pr-${PR_NUMBER}"
+              git checkout "pr-${PR_NUMBER}"
+              git merge "${{ github.event.pull_request.base.ref }}"
+              git diff "${{ github.event.pull_request.base.ref }}" --name-only --diff-filter=U | grep "${PR_AUTHOR}" && echo "::error::Conflicts with base branch, please rebase your changes!" && exit 1
+              git push
+              curl -X POST -H "Authorization: token $GIT_TOKEN" -d "{\"assignees\":[\"${USER_TO_ASSIGN}\"]}" "https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/issues/${PR_NUMBER}/assignees"
+            fi
+          elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            if [[ "${{ github.event.pull_request.state }}" == "open" ]]; then
+              PR_NUMBER="${{ github.event.pull_request.number }}"
+              PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+              PR_APPROVED=$(curl -s -H "Authorization: token $GIT_TOKEN" "https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/pulls/${PR_NUMBER}/reviews?per_page=100" | grep -c "\"state\":\"APPROVED\"")
+              if [[ "$PR_APPROVED" -eq "1" ]]; then
+                git fetch origin pull/"${PR_NUMBER}"/head:"pr-${PR_NUMBER}"
+                git checkout "pr-${PR_NUMBER}"
+                git merge "${{ github.event.pull_request.base.ref }}"
+                git diff "${{ github.event.pull_request.base.ref }}" --name-only --diff-filter=U | grep "${PR_AUTHOR}" && echo "::error::Conflicts with base branch, please rebase your changes!" && exit 1
+                git push
+                curl -X POST -H "Authorization: token $GIT_TOKEN" -d "{\"assignees\":[\"${USER_TO_ASSIGN}\"]}" "https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/issues/${PR_NUMBER}/assignees"
+              fi
+            fi
+          fi
