@@ -5,12 +5,12 @@ import time
 
 repo_url = "https://github.com/mk-mahina/PR-Merge-DryRun/"
 pr_number = os.environ['PR_NUMBER']
-github_token = os.environ['SECRET_TOKEN']
-#github_token = os.getenv('SECRET_TOKEN')
+github_token = os.environ['GIT_TOKEN']
+#github_token = os.getenv('GIT_TOKEN')
 github_username = "armin-mahina"
 
 print("PR_NUMBER:", pr_number)
-print("SECRET_TOKEN:", github_token)
+print("GIT_TOKEN:", github_token)
 print("GITHUB_REPOSITORY:", os.environ['GITHUB_REPOSITORY'])
 
 url = f"{repo_url}repos/{os.environ['GITHUB_REPOSITORY']}/issues/{pr_number}/assignees"

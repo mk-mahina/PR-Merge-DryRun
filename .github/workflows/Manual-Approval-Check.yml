@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
 
     steps:
       - uses: actions/checkout@v2
@@ -22,7 +22,7 @@ jobs:
         run: |
           pr_url="${{ github.event.pull_request.url }}"
           approval_url="${pr_url}/reviews?state=APPROVED"
-          response=$(curl -s -H "Authorization: Bearer ${{ secrets.SECRET_TOKEN }}" "$approval_url")
+          response=$(curl -s -H "Authorization: Bearer ${{ secrets.GIT_TOKEN }}" "$approval_url")
           approved_count=$(echo "$response" | jq '. | length')
           if [[ "$approved_count" -gt 0 ]]; then
             echo ::set-output name=approved::true
