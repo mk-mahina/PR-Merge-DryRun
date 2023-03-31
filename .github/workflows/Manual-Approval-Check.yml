@@ -16,5 +16,24 @@ jobs:
       - name: Install plugin dependencies
         run: pip install -r requirements.txt
 
-      - name: Run plugin checks
+      - name: Check if PR is approved
+        id: pr-check
+        run: |
+          pr_url="${{ github.event.pull_request.url }}"
+          approval_url="${pr_url}/reviews?state=APPROVED"
+          response=$(curl -s -H "Authorization: Bearer ${{ secrets.SECRET_TOKEN }}" "$approval_url")
+          approved_count=$(echo "$response" | jq '. | length')
+          if [[ "$approved_count" -gt 0 ]]; then
+            echo ::set-output name=approved::true
+          else
+            echo ::set-output name=approved::false
+          fi
+        shell: bash
+
+      - name: Assign PR to armin-mahina if approved
+        if: ${{ steps.pr-check.outputs.approved == 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: python pr-merge.py
