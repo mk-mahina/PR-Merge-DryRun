@@ -1,6 +1,7 @@
 import os
 import requests
 import json
+import time
 
 os.environ['SECRET_TOKEN'] = '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'
 
@@ -34,6 +35,9 @@ else:
     if github_username in assignees:
         print(f"PR #{pr_number} is already assigned to {github_username}")
     else:
+        # Add a 5-second delay before making the POST request
+        time.sleep(5)
+
         # Make a POST request to assign the user to the PR
         post_response = requests.post(url, headers=headers, data=json.dumps(payload))
         if post_response.status_code != 201:
