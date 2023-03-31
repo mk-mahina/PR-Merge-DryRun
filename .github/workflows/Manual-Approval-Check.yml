@@ -3,9 +3,7 @@ name: Merge Checks
 on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
-    branches:
-      - "*"
-      
+
 jobs:
   merge-checks:
     runs-on: ubuntu-latest
