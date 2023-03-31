@@ -4,7 +4,7 @@ import json
 import time
 import sys
 
-repo_url = "https://github.com/mk-mahina/PR-Merge-DryRun/"
+repo_url = "https://api.github.com/repos/mk-mahina/PR-Merge-DryRun"
 pr_number = os.environ['PR_NUMBER']
 
 print("PR_NUMBER:", os.environ['PR_NUMBER'])
@@ -18,7 +18,10 @@ print("PR_NUMBER:", pr_number)
 print("GIT_TOKEN:", github_token)
 print("GITHUB_REPOSITORY:", os.environ['GITHUB_REPOSITORY'])
 
-url = f"{repo_url}/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{pr_number}/assignees"
+#url = f"{repo_url}/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{pr_number}/assignees"
+
+url = f"{repo_url}/issues/{pr_number}/assignees"
+
 headers = {
     "Accept": "application/vnd.github.v3+json",
     "Authorization": f"token {github_token}"
