@@ -13,11 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9 # or whichever version of Python your plugin requires
-
       - name: Install plugin dependencies
         run: pip install -r requirements.txt
 
