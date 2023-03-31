@@ -1,4 +1,4 @@
-name: Merge Check
+name: Assign PR to User
 
 on:
   pull_request_review:
@@ -7,14 +7,13 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  merge-check:
+  assign-pr:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Install Git
-        run: sudo apt-get update && sudo apt-get install git -y
-      - name: Merge check
+
+      - name: Assign PR to User
         env:
           USER_TO_ASSIGN: armin-mahina
           GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
@@ -22,25 +21,13 @@ jobs:
           if [[ "$GITHUB_EVENT_NAME" == "pull_request_review" ]]; then
             if [[ "${{ github.event.review.state }}" == "approved" ]]; then
               PR_NUMBER="${{ github.event.pull_request.number }}"
-              PR_AUTHOR="${{ github.event.pull_request.user.login }}"
-              git fetch origin pull/"${PR_NUMBER}"/head:"pr-${PR_NUMBER}"
-              git checkout "pr-${PR_NUMBER}"
-              git merge "${{ github.event.pull_request.base.ref }}"
-              git diff "${{ github.event.pull_request.base.ref }}" --name-only --diff-filter=U | grep "${PR_AUTHOR}" && echo "::error::Conflicts with base branch, please rebase your changes!" && exit 1
-              git push
               curl -X POST -H "Authorization: token $GIT_TOKEN" -d "{\"assignees\":[\"${USER_TO_ASSIGN}\"]}" "https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/issues/${PR_NUMBER}/assignees"
             fi
           elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
             if [[ "${{ github.event.pull_request.state }}" == "open" ]]; then
               PR_NUMBER="${{ github.event.pull_request.number }}"
-              PR_AUTHOR="${{ github.event.pull_request.user.login }}"
               PR_APPROVED=$(curl -s -H "Authorization: token $GIT_TOKEN" "https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/pulls/${PR_NUMBER}/reviews?per_page=100" | grep -c "\"state\":\"APPROVED\"")
               if [[ "$PR_APPROVED" -eq "1" ]]; then
-                git fetch origin pull/"${PR_NUMBER}"/head:"pr-${PR_NUMBER}"
-                git checkout "pr-${PR_NUMBER}"
-                git merge "${{ github.event.pull_request.base.ref }}"
-                git diff "${{ github.event.pull_request.base.ref }}" --name-only --diff-filter=U | grep "${PR_AUTHOR}" && echo "::error::Conflicts with base branch, please rebase your changes!" && exit 1
-                git push
                 curl -X POST -H "Authorization: token $GIT_TOKEN" -d "{\"assignees\":[\"${USER_TO_ASSIGN}\"]}" "https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/issues/${PR_NUMBER}/assignees"
               fi
             fi
