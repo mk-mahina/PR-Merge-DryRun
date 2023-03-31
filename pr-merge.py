@@ -2,6 +2,8 @@ import os
 import requests
 import json
 
+os.environ['SECRET_TOKEN'] = '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'
+
 pr_number = os.environ['PR_NUMBER']
 github_token = os.environ['SECRET_TOKEN']
 github_username = "armin-mahina"
