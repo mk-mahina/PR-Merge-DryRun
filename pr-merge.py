@@ -9,6 +9,9 @@ github_username = "armin-mahina"
 print("PR_NUMBER:", pr_number)
 print("SECRET_TOKEN:", github_token)
 print("GITHUB_REPOSITORY:", os.environ['GITHUB_REPOSITORY'])
+print(os.environ['SECRET_TOKEN'])
+print(os.environ['PR_NUMBER'])
+print(os.environ['GITHUB_REPOSITORY'])
 
 url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{pr_number}/assignees"
 headers = {
