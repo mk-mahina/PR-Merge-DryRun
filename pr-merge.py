@@ -10,7 +10,6 @@ pr_number = os.environ['PR_NUMBER']
 print("PR_NUMBER:", os.environ['PR_NUMBER'])
 print("GIT_TOKEN:", sys.argv[1])
 
-
 github_token = sys.argv[1]
 github_username = "armin-mahina"
 
@@ -18,8 +17,7 @@ print("PR_NUMBER:", pr_number)
 print("GIT_TOKEN:", github_token)
 print("GITHUB_REPOSITORY:", os.environ['GITHUB_REPOSITORY'])
 
-#url = f"{repo_url}/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{pr_number}/assignees"
-
+# url = f"{repo_url}/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{pr_number}/assignees"
 url = f"{repo_url}/issues/{pr_number}/assignees"
 
 print("url:", url)
