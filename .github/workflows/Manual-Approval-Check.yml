@@ -5,13 +5,7 @@ on:
     types: [opened, synchronize, reopened, edited]
     branches:
       - "*"
-    # Trigger the job only if the pull request is in the "approved" state
-    # Modify the name of the branch protection rule if necessary
-    # Modify the name of the "approved" status if necessary
-    # Modify the name of the user/group that approves the pull request if necessary
-    # See https://docs.github.com/en/rest/reference/repos#get-a-branch-protection-rule for more information
-    condition: ${{ github.event.pull_request.statuses[0].context == 'status-name' && github.event.pull_request.labels.*.name contains 'approved' && contains(github.event.pull_request.requested_reviewers.*.login, 'approver-username') }}
-
+      
 jobs:
   merge-checks:
     runs-on: ubuntu-latest
