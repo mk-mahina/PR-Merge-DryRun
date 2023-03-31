@@ -3,8 +3,9 @@ name: Merge Check and Assign
 on:
   pull_request_review:
     types: [submitted, edited]
-  pull_request:
-    types: [labeled]
+  push:
+    branches:
+      - 'refs/heads/*'
 
 jobs:
   merge_check_and_assign:
@@ -16,14 +17,14 @@ jobs:
         with:
           required_approvals: 1
       - name: Assign PR to user if approved
-        if: ${{ steps.merge-check.outputs.mergeable == 'true' }}
+        if: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.state == 'approved' && steps.merge-check.outputs.mergeable == 'true' }}
         uses: peter-evans/create-issue-comment@v1.6.0
         with:
           body: 'This PR has been approved and is ready to be merged!'
           issue-number: ${{ github.event.pull_request.number }}
           repo-token: ${{ secrets.SECRET_TOKEN }}
       - name: Assign PR to user
-        if: ${{ steps.merge-check.outputs.mergeable == 'true' }}
+        if: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.state == 'approved' && steps.merge-check.outputs.mergeable == 'true' }}
         uses: actions/github-script@v5
         with:
           github-token: ${{ secrets.SECRET_TOKEN }}
