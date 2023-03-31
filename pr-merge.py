@@ -2,7 +2,7 @@ import os
 import requests
 import json
 
-os.environ['SECRET_TOKEN'] = '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'
+os.environ['SECRET_TOKEN'] = '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'
 
 pr_number = os.environ['PR_NUMBER']
 github_token = os.environ['SECRET_TOKEN']
