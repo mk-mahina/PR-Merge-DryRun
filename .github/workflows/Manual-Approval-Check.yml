@@ -33,9 +33,10 @@ jobs:
         shell: bash
 
       - name: Assign PR to armin-mahina if approved
-        if: steps.check_approval.outputs.approved == 'true'
-        run: |
-          echo "GIT_TOKEN: ${{ secrets.GIT_TOKEN }}"
-          python assign-pr.py
+        if: ${{ steps.pr-check.outputs.approved == 'true' }}
         env:
-          PR_NUMBER: ${{ github.event.number }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          echo "GIT_TOKEN: ${{ secrets.GIT_TOKEN }}"          
+          python pr-merge.py
