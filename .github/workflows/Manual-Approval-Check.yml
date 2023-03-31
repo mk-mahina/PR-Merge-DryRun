@@ -1,37 +1,37 @@
-name: Merge Check and Assign
+name: Merge Checks
 
 on:
-  pull_request_review:
-    types: [submitted, edited]
-  push:
-    branches:
-      - 'refs/heads/*'
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
 
 jobs:
-  merge_check_and_assign:
+  merge-checks:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Check if all required reviews are approved
-        uses: google/github-actions/checks/mergeable@main
-        id: merge-check
-        with:
-          required_approvals: 1
-      - name: Assign PR to user if approved
-        if: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.state == 'approved' && steps.merge-check.outputs.mergeable == 'true' }}
-        uses: peter-evans/create-issue-comment@v1.6.0
-        with:
-          body: 'This PR has been approved and is ready to be merged!'
-          issue-number: ${{ github.event.pull_request.number }}
-          repo-token: ${{ secrets.SECRET_TOKEN }}
-      - name: Assign PR to user
-        if: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.state == 'approved' && steps.merge-check.outputs.mergeable == 'true' }}
-        uses: actions/github-script@v5
-        with:
-          github-token: ${{ secrets.SECRET_TOKEN }}
-          script: |
-            github.issues.addAssignees({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              assignees: ['armin-mahina']
-            })
+      - uses: actions/checkout@v2
+
+      - name: Install plugin dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check if PR is approved
+        id: pr-check
+        run: |
+          pr_url="${{ github.event.pull_request.url }}"
+          approval_url="${pr_url}/reviews?state=APPROVED"
+          response=$(curl -s -H "Authorization: Bearer ${{ secrets.SECRET_TOKEN }}" "$approval_url")
+          approved_count=$(echo "$response" | jq '. | length')
+          if [[ "$approved_count" -gt 0 ]]; then
+            echo ::set-output name=approved::true
+          else
+            echo ::set-output name=approved::false
+          fi
+        shell: bash
+
+      - name: Assign PR to armin-mahina if approved
+        if: ${{ steps.pr-check.outputs.approved == 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python pr-merge.py
