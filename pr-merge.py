@@ -31,8 +31,8 @@ else:
     if github_username in assignees:
         print(f"PR #{pr_number} is already assigned to {github_username}")
     else:
-        # Add a 10-second delay before making the POST request
-        time.sleep(10)
+        # Add a 5-second delay before making the POST request
+        time.sleep(5)
 
         # Make a POST request to assign the user to the PR
         post_response = requests.post(url, headers=headers, data=json.dumps(payload))
