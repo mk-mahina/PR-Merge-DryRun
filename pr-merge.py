@@ -22,6 +22,8 @@ print("GITHUB_REPOSITORY:", os.environ['GITHUB_REPOSITORY'])
 
 url = f"{repo_url}/issues/{pr_number}/assignees"
 
+print("url:", url)
+
 headers = {
     "Accept": "application/vnd.github.v3+json",
     "Authorization": f"token {github_token}"
