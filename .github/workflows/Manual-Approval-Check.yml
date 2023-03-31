@@ -10,28 +10,35 @@ on:
 
 jobs:
   assign-reviewer:
-    if: github.event.pull_request.review.state == 'approved' && !contains(github.event.pull_request.assignees.*.login, 'armin-mahina')
+    if: github.event.pull_request.review.state == 'approved' && contains(github.event.pull_request.labels.*.name, 'approved')
     runs-on: ubuntu-latest
     steps:
       - name: Assign reviewer
         run: |
+          # Assign the PR to "armin-mahina"
           curl -X POST -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/issues/${{ github.event.pull_request.number }}/assignees -d '{"assignees":["armin-mahina"]}'
+          
+          # Add "waiting for manual approval" label to the PR
+          curl -X POST -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/issues/${{ github.event.pull_request.number }}/labels -d '["waiting for manual approval"]'
+          
+          # Set the status of the PR to "waiting for manual approval"
+          curl -X POST -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/statuses/${{ github.sha }} -d '{"state": "pending", "description": "waiting for manual approval", "context": "merge gates/checks"}'
+          
         env:
           GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
 
   check-approval:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.review.state == 'approved' && contains(github.event.pull_request.assignees.*.login, 'armin-mahina')
+    if: github.event.pull_request.review.state == 'approved' && contains(github.event.pull_request.labels.*.name, 'waiting for manual approval')
     needs: assign-reviewer
     steps:
       - name: Check for manual approval
         run: |
+          # Check if the PR has been manually approved by "armin-mahina"
           if curl -s -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/pulls/${{ github.event.pull_request.number }}/reviews | jq '.[] | select(.state == "APPROVED" and .user.login == "armin-mahina")' > /dev/null
           then
-            echo "PR has been manually approved by armin-mahina"
+            # Set the status of the PR to "manual approval given"
+            curl -X POST -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/statuses/${{ github.sha }} -d '{"state": "success", "description": "manual approval given", "context": "merge gates/checks"}'
           else
-            echo "PR is still awaiting manual approval"
-            exit 1
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
+            # Set the status of the PR to "manual approval required"
+            curl -X POST -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" -
