@@ -2,35 +2,36 @@ import os
 import requests
 import json
 
-# set up authentication using a Github access token
-token = os.environ.get('GITHUB_TOKEN')
-headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
+pr_number = os.environ['PR_NUMBER']
+github_token = os.environ['SECRET_TOKEN']
+github_username = "armin-mahina"
 
-# get the Pull Request number and repository information from environment variables
-pr_number = os.environ.get('PR_NUMBER')
-repository = os.environ.get('GITHUB_REPOSITORY')
+print("PR_NUMBER:", pr_number)
+print("SECRET_TOKEN:", github_token)
+print("GITHUB_REPOSITORY:", os.environ['GITHUB_REPOSITORY'])
 
-# get the Pull Request information using the Github API
-url = f'https://api.github.com/repos/{repository}/pulls/{pr_number}'
-response = requests.get(url, headers=headers)
-pr_data = json.loads(response.text)
+url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{pr_number}/assignees"
+headers = {
+    "Accept": "application/vnd.github.v3+json",
+    "Authorization": f"token {github_token}"
+}
+payload = {"assignees": [github_username]}
 
-# check if the Pull Request is in an approved state
-if pr_data['mergeable_state'] == 'clean' and pr_data['mergeable'] and pr_data['state'] == 'approved':
-
-    # set the username of the user to assign the Pull Request to
-    assignee = 'armin-mahina'
-
-    # construct the API endpoint URL for assigning the Pull Request
-    url = f'https://api.github.com/repos/{repository}/issues/{pr_number}/assignees'
-
-    # make the API request to assign the Pull Request to the specified user
-    response = requests.post(url, headers=headers, json={'assignees': [assignee]})
-
-    # check the response status code to see if the request was successful
-    if response.status_code == 201:
-        print(f'Successfully assigned Pull Request #{pr_number} to {assignee}.')
-    else:
-        print(f'Failed to assign Pull Request #{pr_number} to {assignee}. Response status code: {response.status_code}.')
+# Make a GET request to check if the PR is already assigned to the specified user
+get_response = requests.get(url, headers=headers)
+if get_response.status_code != 200:
+    print("Error getting PR information:", get_response.json())
 else:
-    print(f'Pull Request #{pr_number} is not in an approved state and will not be assigned to {assignee}.')
+    assignees = [assignee['login'] for assignee in get_response.json()['assignees']]
+    print("Current assignees:", assignees)
+
+    # Check if the user is already assigned to the PR
+    if github_username in assignees:
+        print(f"PR #{pr_number} is already assigned to {github_username}")
+    else:
+        # Make a POST request to assign the user to the PR
+        post_response = requests.post(url, headers=headers, data=json.dumps(payload))
+        if post_response.status_code != 201:
+            print(f"Error assigning {github_username} to PR #{pr_number}:", post_response.json())
+        else:
+            print(f"{github_username} has been assigned to PR #{pr_number}")
