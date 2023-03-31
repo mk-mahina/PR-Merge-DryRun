@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
 
     steps:
       - uses: actions/checkout@v2
@@ -34,49 +34,6 @@ jobs:
       - name: Assign PR to armin-mahina if approved
         if: ${{ steps.pr-check.outputs.approved == 'true' }}
         env:
-          SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          import os
-          import requests
-          import json
-          import time
-
-          repo_url = "https://github.com/mk-mahina/PR-Merge-DryRun/"
-          pr_number = os.environ['PR_NUMBER']
-          github_token = os.environ['SECRET_TOKEN']
-          github_username = "armin-mahina"
-
-          print("PR_NUMBER:", pr_number)
-          print("SECRET_TOKEN:", github_token)
-          print("GITHUB_REPOSITORY:", os.environ['GITHUB_REPOSITORY'])
-
-          url = f"{repo_url}/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{pr_number}/assignees"
-          headers = {
-              "Accept": "application/vnd.github.v3+json",
-              "Authorization": f"token {github_token}"
-          }
-          payload = {"assignees": [github_username]}
-
-          # Make a GET request to check if the PR is already assigned to the specified user
-          get_response = requests.get(url, headers=headers)
-          if get_response.status_code != 200:
-              print("Error getting PR information:", get_response.json())
-          else:
-              assignees = [assignee['login'] for assignee in get_response.json()['assignees']]
-              print("Current assignees:", assignees)
-
-              # Check if the user is already assigned to the PR
-              if github_username in assignees:
-                  print(f"PR #{pr_number} is already assigned to {github_username}")
-              else:
-                  # Add a 5-second delay before making the POST request
-                  time.sleep(5)
-
-                  # Make a POST request to assign the user to the PR
-                  post_response = requests.post(url, headers=headers, data=json.dumps(payload))
-                  if post_response.status_code != 201:
-                      print(f"Error assigning {github_username} to PR #{pr_number}:", post_response.json())
-                  else:
-                      print(f"{github_username} has been assigned to PR #{pr_number}")
+        run: python pr-merge.py
