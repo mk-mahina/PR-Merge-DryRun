@@ -2,11 +2,7 @@ import os
 import requests
 import json
 
-os.environ['SECRET_TOKEN'] = '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import os
-import requests
-import json
-
-os.environ['SECRET_TOKEN'] = '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'
+os.environ['SECRET_TOKEN'] = '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'
 
 pr_number = os.environ['PR_NUMBER']
 github_token = os.environ['SECRET_TOKEN']
