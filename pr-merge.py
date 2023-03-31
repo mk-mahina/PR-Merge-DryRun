@@ -3,8 +3,7 @@ import requests
 import json
 import time
 
-os.environ['SECRET_TOKEN'] = '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'
-
+repo_url = "https://github.com/mk-mahina/PR-Merge-DryRun/"
 pr_number = os.environ['PR_NUMBER']
 github_token = os.environ['SECRET_TOKEN']
 github_username = "armin-mahina"
@@ -12,11 +11,8 @@ github_username = "armin-mahina"
 print("PR_NUMBER:", pr_number)
 print("SECRET_TOKEN:", github_token)
 print("GITHUB_REPOSITORY:", os.environ['GITHUB_REPOSITORY'])
-print(os.environ['SECRET_TOKEN'])
-print(os.environ['PR_NUMBER'])
-print(os.environ['GITHUB_REPOSITORY'])
 
-url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{pr_number}/assignees"
+url = f"{repo_url}/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{pr_number}/assignees"
 headers = {
     "Accept": "application/vnd.github.v3+json",
     "Authorization": f"token {github_token}"
@@ -35,8 +31,8 @@ else:
     if github_username in assignees:
         print(f"PR #{pr_number} is already assigned to {github_username}")
     else:
-        # Add a 5-second delay before making the POST request
-        time.sleep(5)
+        # Add a 10-second delay before making the POST request
+        time.sleep(10)
 
         # Make a POST request to assign the user to the PR
         post_response = requests.post(url, headers=headers, data=json.dumps(payload))
