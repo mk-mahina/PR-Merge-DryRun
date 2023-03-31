@@ -20,6 +20,7 @@ jobs:
       - name: Check if PR is approved
         id: pr-check
         run: |
+          echo "GIT_TOKEN: ${{ secrets.GIT_TOKEN }}"
           pr_url="${{ github.event.pull_request.url }}"
           approval_url="${pr_url}/reviews?state=APPROVED"
           response=$(curl -s -H "Authorization: Bearer ${{ secrets.GIT_TOKEN }}" "$approval_url")
@@ -32,8 +33,9 @@ jobs:
         shell: bash
 
       - name: Assign PR to armin-mahina if approved
-        if: ${{ steps.pr-check.outputs.approved == 'true' }}
+        if: steps.check_approval.outputs.approved == 'true'
+        run: |
+          echo "GIT_TOKEN: ${{ secrets.GIT_TOKEN }}"
+          python assign-pr.py
         env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: python pr-merge.py
+          PR_NUMBER: ${{ github.event.number }}
