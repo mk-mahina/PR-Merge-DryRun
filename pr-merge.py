@@ -31,6 +31,7 @@ if not approvals:
     exit(0)
 
 # Assign the pull request to "armin-mahina" and remove existing assignees
+    print(pr_url.assignee.login)
 assignees_payload = {
     "assignees": ["armin-mahina"]
 }
