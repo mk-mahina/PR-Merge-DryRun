@@ -30,25 +30,18 @@ if not approvals:
     print("No approvals found. PR not assigned.")
     exit(0)
 
-# Remove existing assignees from the pull request
-existing_assignees_response = requests.get(assignees_url, headers=headers)
-existing_assignees_data = existing_assignees_response.json()
-existing_assignees = existing_assignees_data["assignees"]
-if existing_assignees:
-    existing_assignee_usernames = [assignee["login"] for assignee in existing_assignees]
-    remove_assignees_payload = {
-        "assignees": existing_assignee_usernames
-    }
-    remove_assignees_response = requests.delete(assignees_url, headers=headers, json=remove_assignees_payload)
-    if remove_assignees_response.ok:
-        print(f"Removed existing assignees: {existing_assignee_usernames}")
-    else:
-        print(f"Failed to remove existing assignees. Response: {remove_assignees_response.text}")
-
-# Assign the pull request to "armin-mahina"
+# Assign the pull request to "armin-mahina" and remove existing assignees
+assignees_response = requests.get(assignees_url, headers=headers)
+existing_assignees_data = assignees_response.json()
+if "assignees" in existing_assignees_data:
+    existing_assignees = existing_assignees_data["assignees"]
+else:
+    existing_assignees = []
 assignees_payload = {
     "assignees": ["armin-mahina"]
 }
+if existing_assignees:
+    assignees_payload["assignees"].extend(existing_assignees)
 assignees_response = requests.post(assignees_url, headers=headers, json=assignees_payload)
 if assignees_response.ok:
     print("PR assigned to armin-mahina.")
