@@ -33,7 +33,10 @@ if not approvals:
 # Remove existing assignees
 existing_assignees_response = requests.get(assignees_url, headers=headers)
 existing_assignees_data = existing_assignees_response.json()
-existing_assignees = existing_assignees_data["assignees"]
+if "assignees" in existing_assignees_data:
+    existing_assignees = existing_assignees_data["assignees"]
+else:
+    existing_assignees = []
 for assignee in existing_assignees:
     remove_assignee_url = f"https://api.github.com/repos/{repository}/issues/{pull_number}/assignees/{assignee['login']}"
     remove_assignee_response = requests.delete(remove_assignee_url, headers=headers)
