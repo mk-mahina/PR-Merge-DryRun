@@ -30,6 +30,7 @@ if not approvals:
 # Check if the pull request is already assigned
 assignees_response = requests.get(assignees_url, headers=headers)
 assignees_data = assignees_response.json()
+print(assignees_data)  # Debugging line
 if any(assignee["login"] == "armin-mahina" for assignee in assignees_data):
     print("PR is already assigned to armin-mahina.")
     exit(0)
