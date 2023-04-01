@@ -31,11 +31,16 @@ if not approvals:
     exit(0)
 
 # Assign the pull request to "armin-mahina" and remove existing assignees
-assignees_payload = {
-    "assignees": ["armin-mahina"]
-}
-assignees_response = requests.post(assignees_url, headers=headers, json=assignees_payload)
-if assignees_response.ok:
-    print("PR assigned to armin-mahina.")
-else:
-    print(f"Failed to assign PR to armin-mahina. Response: {assignees_response.text}")
+
+        print(pr.assignee.login)
+
+        pr.remove_from_assignees(pr.assignee.login)
+
+        # assign the pull request to a user for manual approval
+        pr.add_to_assignees("armin-mahina")
+
+        pr.update()  # update the pr object with the new assignee
+
+        print(pr.assignee.login)
+
+
