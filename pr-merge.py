@@ -36,6 +36,7 @@ assignees_payload = {
 }
 assignees_response = requests.post(assignees_url, headers=headers, json=assignees_payload)
 if assignees_response.ok:
+    print(pr_url.assignee.login)
     print("PR assigned to armin-mahina.")
 else:
     print(f"Failed to assign PR to armin-mahina. Response: {assignees_response.text}")
