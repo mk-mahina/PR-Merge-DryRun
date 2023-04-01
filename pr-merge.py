@@ -31,10 +31,7 @@ if not approvals:
     exit(0)
 
 # Remove existing assignees
-assignees_payload = {
-    "assignees": []
-}
-assignees_response = requests.delete(assignees_url, headers=headers, json=assignees_payload)
+assignees_response = requests.delete(assignees_url, headers=headers)
 
 # Assign the pull request to "armin-mahina"
 assignees_payload = {
