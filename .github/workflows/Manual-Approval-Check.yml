@@ -22,7 +22,7 @@ jobs:
       run: pip install -r requirements.txt
       
     - name: PR merge check
-      run: python pr-merge-check.py
+      run: python pr-merge.py
       env:
         SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
         GITHUB_REPOSITORY: 'mk-mahina/PR-Merge-DryRun'
