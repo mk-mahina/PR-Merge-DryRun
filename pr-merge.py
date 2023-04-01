@@ -3,13 +3,13 @@ import requests
 
 # Get environment variables
 token = os.environ['SECRET_TOKEN']
-repository = "mk-mahina/PR-Merge-DryRun"
+repository = os.environ['GITHUB_REPOSITORY']
 pull_number = os.environ['PULL_NUMBER']
 
 # Set API URLs
 pr_url = f"https://api.github.com/repos/{repository}/pulls/{pull_number}"
 reviews_url = f"{pr_url}/reviews"
-assignees_url = f"{pr_url}/assignees"
+assignees_url = f"https://api.github.com/repos/{repository}/issues/{pull_number}/assignees"
 
 # Set headers
 headers = {
@@ -31,12 +31,17 @@ if not approvals:
     exit(0)
 
 # Remove existing assignees
-assignees_response = requests.delete(assignees_url, headers=headers)
+assignees_payload = {
+    "assignees": []
+}
+assignees_response = requests.delete(assignees_url, headers=headers, json=assignees_payload)
 
 # Assign the pull request to "armin-mahina"
 assignees_payload = {
     "assignees": ["armin-mahina"]
 }
+print(assignees_url) # Debugging line
+print(repository) # Debugging line
 assignees_response = requests.post(assignees_url, headers=headers, json=assignees_payload)
 if assignees_response.ok:
     print("PR assigned to armin-mahina.")
