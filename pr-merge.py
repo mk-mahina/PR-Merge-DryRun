@@ -7,7 +7,7 @@ repository = "mk-mahina/PR-Merge-DryRun"
 pull_number = os.environ['PULL_NUMBER']
 
 # Set API URLs
-pr_url = f"https://api.github.com/repos/{repository}/pulls/{pull_number}"
+pr_url = f"https://api.github.com/repos/{repository}/issues/{pull_number}"
 reviews_url = f"{pr_url}/reviews"
 assignees_url = f"{pr_url}/assignees"
 
