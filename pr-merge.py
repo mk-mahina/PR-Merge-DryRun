@@ -9,7 +9,7 @@ pull_number = os.environ['PULL_NUMBER']
 # Set API URLs
 pr_url = f"https://api.github.com/repos/{repository}/pulls/{pull_number}"
 reviews_url = f"{pr_url}/reviews"
-assignees_url = f"https://api.github.com/repos/{repository}/issues/{pull_number}/assignees"
+assignees_url = f"{pr_url}/assignees"
 
 # Set headers
 headers = {
@@ -33,17 +33,16 @@ if not approvals:
 # Remove existing assignees
 existing_assignees_response = requests.get(assignees_url, headers=headers)
 existing_assignees_data = existing_assignees_response.json()
-if "assignees" in existing_assignees_data:
-    existing_assignees = existing_assignees_data["assignees"]
-else:
-    existing_assignees = []
-for assignee in existing_assignees:
-    remove_assignee_url = f"https://api.github.com/repos/{repository}/issues/{pull_number}/assignees/{assignee['login']}"
-    remove_assignee_response = requests.delete(remove_assignee_url, headers=headers)
-    if remove_assignee_response.ok:
-        print(f"Assignee {assignee['login']} removed.")
+existing_assignees = existing_assignees_data["login"] if existing_assignees_data else []
+if existing_assignees:
+    remove_assignees_payload = {
+        "assignees": existing_assignees
+    }
+    remove_assignees_response = requests.delete(assignees_url, headers=headers, json=remove_assignees_payload)
+    if remove_assignees_response.ok:
+        print(f"Existing assignees {existing_assignees} removed.")
     else:
-        print(f"Failed to remove assignee {assignee['login']}. Response: {remove_assignee_response.text}")
+        print(f"Failed to remove existing assignees. Response: {remove_assignees_response.text}")
 
 # Assign the pull request to "armin-mahina"
 assignees_payload = {
