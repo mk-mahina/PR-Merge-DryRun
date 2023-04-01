@@ -9,7 +9,6 @@ pull_number = os.environ['PULL_NUMBER']
 # Set API URLs
 pr_url = f"https://api.github.com/repos/{repository}/pulls/{pull_number}"
 reviews_url = f"{pr_url}/reviews"
-
 assignees_url = f"https://api.github.com/repos/{repository}/issues/{pull_number}/assignees"
 
 # Set headers
@@ -31,8 +30,7 @@ if not approvals:
 # Check if the pull request is already assigned
 assignees_response = requests.get(assignees_url, headers=headers)
 assignees_data = assignees_response.json()
-print(assignees_data)  # Debugging line
-if any(assignee["login"] == "armin-mahina" for assignee in assignees_data):
+if any(assignee["login"] == "armin-mahina" for assignee in assignees_data.get("assignees", [])):
     print("PR is already assigned to armin-mahina.")
     exit(0)
 
