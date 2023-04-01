@@ -8,7 +8,8 @@ pull_number = os.environ['PULL_NUMBER']
 
 # Set API URLs
 pr_url = f"https://api.github.com/repos/{repository}/pulls/{pull_number}"
-assignees_url = f"{pr_url}/assignees"
+reviews_url = f"{pr_url}/reviews"
+assignees_url = f"https://api.github.com/repos/{repository}/issues/{pull_number}/assignees"
 
 # Set headers
 headers = {
@@ -16,30 +17,20 @@ headers = {
     "Authorization": f"token {token}"
 }
 
-# Check if the pull request is open
+# Check if the pull request is approved
 pr_response = requests.get(pr_url, headers=headers)
 pr_data = pr_response.json()
 if pr_data["state"] != "open":
     print("PR is not open. Exiting.")
     exit(0)
+reviews_response = requests.get(reviews_url, headers=headers)
+reviews_data = reviews_response.json()
+approvals = [review for review in reviews_data if review["state"] == "APPROVED"]
+if not approvals:
+    print("No approvals found. PR not assigned.")
+    exit(0)
 
-# Get existing assignees
-assignees_response = requests.get(assignees_url, headers=headers)
-assignees_data = assignees_response.json()
-existing_assignees = [assignee['login'] for assignee in assignees_data]
-
-# Remove existing assignees
-if existing_assignees:
-    assignees_payload = {
-        "assignees": existing_assignees
-    }
-    assignees_response = requests.delete(assignees_url, headers=headers, json=assignees_payload)
-    if assignees_response.ok:
-        print("Existing assignees removed.")
-    else:
-        print(f"Failed to remove existing assignees. Response: {assignees_response.text}")
-        
-# Assign the pull request to "armin-mahina"
+# Assign the pull request to "armin-mahina" and remove existing assignees
 assignees_payload = {
     "assignees": ["armin-mahina"]
 }
