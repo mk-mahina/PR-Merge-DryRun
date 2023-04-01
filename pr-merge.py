@@ -30,7 +30,8 @@ if not approvals:
 # Check if the pull request is already assigned
 assignees_response = requests.get(assignees_url, headers=headers)
 assignees_data = assignees_response.json()
-if any(assignee["login"] == "armin-mahina" for assignee in assignees_data.get("assignees", [])):
+current_assignees = assignees_data.get("assignees", [])
+if "armin-mahina" in current_assignees:
     print("PR is already assigned to armin-mahina.")
     exit(0)
 
@@ -38,7 +39,10 @@ if any(assignee["login"] == "armin-mahina" for assignee in assignees_data.get("a
 assignees_payload = {
     "assignees": ["armin-mahina"]
 }
-assignees_response = requests.post(assignees_url, headers=headers, json=assignees_payload)
+if current_assignees:
+    # Remove the existing assignee(s)
+    assignees_payload["assignees"] += [assignee for assignee in current_assignees if assignee != "armin-mahina"]
+assignees_response = requests.put(assignees_url, headers=headers, json=assignees_payload)
 if assignees_response.ok:
     print("PR assigned to armin-mahina.")
 else:
