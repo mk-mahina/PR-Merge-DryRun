@@ -1,11 +1,13 @@
-name: Assign issue
+name: PR merge check
 
 on:
+  pull_request_review:
+    types: [submitted]
   pull_request:
-    branches: '**'
+    types: [opened, synchronize]
 
 jobs:
-  assign:
+  merge-check:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -19,8 +21,9 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
       
-    - name: Assign issue
-      run: python pr-merge.py
+    - name: PR merge check
+      run: python pr-merge-check.py
       env:
         SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
         GITHUB_REPOSITORY: 'mk-mahina/PR-Merge-DryRun'
+        PULL_NUMBER: ${{ github.event.pull_request.number }}
