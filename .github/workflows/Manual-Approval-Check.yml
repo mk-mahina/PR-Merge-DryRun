@@ -1,34 +1,26 @@
-name: Assign PR to User
+name: Assign issue
 
 on:
-  pull_request_review:
-    types: [submitted]
   pull_request:
-    types: [opened, synchronize]
+    branches: '**'
 
 jobs:
-  assign-pr:
+  assign:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Assign PR to User
-        env:
-          USER_TO_ASSIGN: armin-mahina
-          GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
-        run: |
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request_review" ]]; then
-            if [[ "${{ github.event.review.state }}" == "approved" ]]; then
-              PR_NUMBER="${{ github.event.pull_request.number }}"
-              curl -X POST -H "Authorization: token $GIT_TOKEN" -d "{\"assignees\":[\"${USER_TO_ASSIGN}\"]}" "https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/issues/${PR_NUMBER}/assignees"
-            fi
-          elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            if [[ "${{ github.event.pull_request.state }}" == "open" ]]; then
-              PR_NUMBER="${{ github.event.pull_request.number }}"
-              PR_APPROVED=$(curl -s -H "Authorization: token $GIT_TOKEN" "https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/pulls/${PR_NUMBER}/reviews?per_page=100" | grep -c "\"state\":\"APPROVED\"")
-              if [[ "$PR_APPROVED" -eq "1" ]]; then
-                curl -X POST -H "Authorization: token $GIT_TOKEN" -d "{\"assignees\":[\"${USER_TO_ASSIGN}\"]}" "https://api.github.com/repos/mk-mahina/PR-Merge-DryRun/issues/${PR_NUMBER}/assignees"
-              fi
-            fi
-          fi
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+      
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+      
+    - name: Assign issue
+      run: python pr-merge.py
+      env:
+        SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
+        GITHUB_REPOSITORY: 'mk-mahina/PR-Merge-DryRun'
