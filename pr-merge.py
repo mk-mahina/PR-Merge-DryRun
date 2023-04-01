@@ -30,21 +30,7 @@ if not approvals:
     print("No approvals found. PR not assigned.")
     exit(0)
 
-# Check if the pull request is already assigned to someone else
-assignees_response = requests.get(assignees_url, headers=headers)
-assignees_data = assignees_response.json()
-if assignees_data.get("assignees"):
-    assigned_user = assignees_data.get("assignees")[0]["login"]
-    if assigned_user != "armin-mahina":
-        print(f"PR is already assigned to {assigned_user}. Unassigning.")
-        assignees_payload = {
-            "assignees": []
-        }
-        requests.delete(assignees_url, headers=headers, json=assignees_payload)
-else:
-    print("PR not assigned to anyone.")
-
-# Assign the pull request to "armin-mahina"
+# Assign the pull request to "armin-mahina" and remove existing assignees
 assignees_payload = {
     "assignees": ["armin-mahina"]
 }
