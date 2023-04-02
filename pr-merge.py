@@ -57,22 +57,13 @@ review_gate_statuses = [status for status in statuses_data["statuses"] if status
 if review_gate_statuses:
     print(f"{review_gate_name} status check already exists.")
 else:
-    # Check if another reviewer has approved the PR
-    reviews_response = requests.get(reviews_url, headers=headers)
-    reviews_data = reviews_response.json()
-
-    approved_reviewers = [review['user']['login'] for review in reviews_data if review['state'] == 'APPROVED' and review['user']['login'] != 'armin-mahina']
-
-    if approved_reviewers:
-        print(f"{approved_reviewers[0]} has already approved the PR. Skipping {review_gate_name} status check.")
+    status_payload = {
+        "state": "pending",
+        "description": f"This PR is waiting for manual approval from armin-mahina before merging. ({review_gate_name})",
+        "context": review_gate_name
+    }
+    status_response = requests.post(statuses_url, headers=headers, json=status_payload)
+    if status_response.ok:
+        print(f"{review_gate_name} status check created.")
     else:
-        status_payload = {
-            "state": "pending",
-            "description": f"This PR is waiting for manual approval from armin-mahina before merging. ({review_gate_name})",
-            "context": review_gate_name
-        }
-        status_response = requests.post(statuses_url, headers=headers, json=status_payload)
-        if status_response.ok:
-            print(f"{review_gate_name} status check created.")
-        else:
-            print(f"Failed to create {review_gate_name} status check. Response: {status_response.text}")
+        print(f"Failed to create {review_gate_name} status check. Response: {status_response.text}")
