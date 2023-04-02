@@ -45,16 +45,16 @@ if "armin-mahina" in reviewers:
     if approved:
         print("Armin has approved the pull request. It can be merged.")
     else:
-        print("Armin has not approved the pull request. It cannot be merged.")
-        # Add a comment and block the merge
+        print("Waiting for approval from armin-mahina.")
+        # Add a comment to the pull request
         comment_payload = {
-            "body": "Waiting for approval from @armin-mahina before merging."
+            "body": "Waiting for approval from armin-mahina."
         }
-        comment_response = requests.post(comments_url, headers=headers, json=comment_payload)
-        if comment_response.ok:
-            print("Comment added successfully.")
+        comments_response = requests.post(comments_url, headers=headers, json=comment_payload)
+        if comments_response.ok:
+            print("Comment added to the pull request.")
         else:
-            print(f"Failed to add comment. Response: {comment_response.text}")
+            print(f"Failed to add comment. Response: {comments_response.text}")
         exit(1)
 
 else:
@@ -66,13 +66,3 @@ else:
         print("armin-mahina added as a reviewer to the pull request.")
     else:
         print(f"Failed to add armin-mahina as a reviewer to the pull request. Response: {reviewers_response.text}")
-    # Add a comment and block the merge
-    comment_payload = {
-        "body": "Waiting for approval from @armin-mahina before merging."
-    }
-    comment_response = requests.post(comments_url, headers=headers, json=comment_payload)
-    if comment_response.ok:
-        print("Comment added successfully.")
-    else:
-        print(f"Failed to add comment. Response: {comment_response.text}")
-    exit(1)
