@@ -38,6 +38,7 @@ jobs:
       - name: Show Jira issue key
         run: echo ${{ env.jira-issue-key }}
 
+      
       - name: Transition Jira issue from pending PR --> pending PR QA
         env:
           JIRA_AUTH_TOKEN: ${{ secrets.JIRA_AUTH_TOKEN }}
@@ -45,11 +46,10 @@ jobs:
           JIRA_TRANSITION_ID: "91"
         run: |    
           echo "JIRA_BASE_URL=$JIRA_BASE_URL"
-          echo "jira-issue-key=$jira-issue-key"
+          echo "jira-issue-key=${{ env.jira-issue-key }}"
           echo "JIRA_TRANSITION_ID=$JIRA_TRANSITION_ID"
           curl -D- -H "Authorization: Bearer $JIRA_AUTH_TOKEN" \
             -X POST \
             -H "Content-Type: application/json" \
-            --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
+            --data "{\"transition\": {\"id\": \"$JIRA_TRANSITION_ID\"}}" \
             $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions"
-      
