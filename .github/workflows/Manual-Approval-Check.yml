@@ -10,20 +10,21 @@ jobs:
   merge-check:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
       
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
       
-    - name: Install dependencies
-      run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
       
-    - name: PR merge check
-      run: python pr-merge.py
-      env:
-        SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
-        GITHUB_REPOSITORY: 'mk-mahina/PR-Merge-DryRun'
-        PULL_NUMBER: ${{ github.event.pull_request.number }}
+      - name: PR merge check
+        run: python pr-merge.py
+        env:
+          SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
+          GITHUB_REPOSITORY: 'mk-mahina/PR-Merge-DryRun'
+          PULL_NUMBER: ${{ github.event.pull_request.number }}
+          REVIEW_GATE_NAME: 'Waiting for Manual Approval'
