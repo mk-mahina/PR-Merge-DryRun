@@ -34,7 +34,9 @@ jobs:
         run: |
           echo "github.head_ref=${{ github.head_ref }}"
           echo "jira-issue-key=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///g')" >> $GITHUB_ENV
- 
+      
+      - name: Show Jira issue key
+        run: echo ${{ env.jira-issue-key }}
 
       - name: Transition Jira issue from pending PR --> pending PR QA
         if: steps.pr-assign.outputs.success == 'true'
