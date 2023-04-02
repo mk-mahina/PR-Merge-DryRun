@@ -1,0 +1,66 @@
+name: PR Assignment
+
+on:
+  pull_request_review:
+    types: [submitted]
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  merge-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: PR Manual Check Assignment
+        id: pr-assign
+        run: python pr-assign.py
+        env:
+          SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
+          GITHUB_REPOSITORY: 'mk-mahina/PR-Merge-DryRun'
+          PULL_NUMBER: ${{ github.event.pull_request.number }}
+
+      - name: Get Jira issue key from branch name
+        id: get-jira-issue-key
+        run: |
+          echo "github.head_ref=${{ github.head_ref }}"
+          echo "jira-issue-key=$(echo ${{ github.head_ref }} | sed -nE 's#^([A-Z]+-[0-9]+).*#\1#p')" >> $GITHUB_ENV
+       
+      - name: Show Jira issue key
+        run: echo ${{ env.jira-issue-key }}
+
+      
+      - name: Transition Jira issue from pending PR --> pending PR QA
+        env:
+          JIRA_AUTH_TOKEN: ${{ secrets.JIRA_AUTH_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER: ${{ secrets.JIRA_USER }}          
+          JIRA_TRANSITION_ID: "91"
+        run: |    
+          echo "jira-issue-key=${{ env.jira-issue-key }}"
+          echo "JIRA_TRANSITION_ID=$JIRA_TRANSITION_ID"
+          curl -D- -u $JIRA_USER:$JIRA_AUTH_TOKEN \
+            -X POST \
+            -H "Content-Type: application/json" \
+            --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
+            $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
+
+      - name: Check if PR is approved by armin-mahina
+        id: check-review
+        run: |
+          if [ "${{ github.event.review.user.login }}" != "armin-mahina" ]; then
+            echo "PR not approved by armin-mahina"
+            echo "::set-output name=pull_request::false"
+          else
+            echo "PR approved by armin-mahina"
+            echo "::set-output name=pull_request::true"
+          fi
