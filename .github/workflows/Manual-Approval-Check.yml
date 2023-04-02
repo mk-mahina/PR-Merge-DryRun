@@ -42,7 +42,7 @@ jobs:
         env:
           JIRA_AUTH_TOKEN: ${{ secrets.JIRA_AUTH_TOKEN }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_TRANSITION_ID: "91"
+          JIRA_TRANSITION_ID: "71"
         run: |
           curl -D- -u $JIRA_AUTH_TOKEN: \
             -X POST \
