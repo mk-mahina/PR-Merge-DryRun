@@ -22,7 +22,7 @@ pr_data = pr_response.json()
 
 if pr_data["state"] != "open":
     print("PR is not approved. Exiting.")
-    exit(0)
+    exit(1)
 
 # Check if armin-mahina has been added as a reviewer to the pull request
 reviews_response = requests.get(reviews_url, headers=headers)

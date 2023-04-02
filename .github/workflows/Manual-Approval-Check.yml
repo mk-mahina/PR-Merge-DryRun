@@ -28,7 +28,7 @@ jobs:
           SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
           GITHUB_REPOSITORY: 'mk-mahina/PR-Merge-DryRun'
           PULL_NUMBER: ${{ github.event.pull_request.number }}
-          
+
       - name: Get Jira issue key from branch name
         id: get-jira-issue-key
         run: |
@@ -38,8 +38,8 @@ jobs:
       - name: Show Jira issue key
         run: echo ${{ env.jira-issue-key }}
 
+      
       - name: Transition Jira issue from pending PR --> pending PR QA
-        if: ${{ steps.pr-assign.outcome == 'success' }}
         env:
           JIRA_AUTH_TOKEN: ${{ secrets.JIRA_AUTH_TOKEN }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
@@ -52,4 +52,4 @@ jobs:
             -X POST \
             -H "Content-Type: application/json" \
             --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
-            $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions"
+            $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
