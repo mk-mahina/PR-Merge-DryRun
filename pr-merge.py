@@ -33,8 +33,8 @@ reviewers_response = requests.get(reviews_url, headers=headers)
 reviewers_data = reviewers_response.json()
 
 if not any(reviewer['user']['login'] == 'armin-mahina' and reviewer['state'] == 'APPROVED' for reviewer in reviewers_data):
-    print("armin-mahina has not approved the PR. Exiting.")
-    exit(0)
+    print("armin-mahina has not approved the PR. Blocking the merge.")
+    exit(1)
 
 # Check if "Waiting for Manual Approval" status check already exists
 statuses_response = requests.get(statuses_url, headers=headers)
