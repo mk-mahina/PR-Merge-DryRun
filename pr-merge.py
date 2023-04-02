@@ -8,7 +8,8 @@ pull_number = os.environ['PULL_NUMBER']
 
 # Set API URLs
 pr_url = f"https://api.github.com/repos/{repository}/pulls/{pull_number}"
-reviews_url = f"{pr_url}/requested_reviewers"
+statuses_url = f"{pr_url}/statuses"
+reviews_url = f"{pr_url}/reviews"
 
 # Set headers
 headers = {
@@ -16,25 +17,40 @@ headers = {
     "Authorization": f"token {token}"
 }
 
-# Check if the pull request is approved
+# Check if the pull request is approved and armin-mahina has been added as a reviewer
 pr_response = requests.get(pr_url, headers=headers)
 pr_data = pr_response.json()
+
 if pr_data["state"] != "open":
     print("PR is not open. Exiting.")
     exit(0)
 
-# Check if armin-mahina has been added as a reviewer to the pull request
-reviews_response = requests.get(reviews_url, headers=headers)
-reviews_data = reviews_response.json()
-reviewers = [reviewer["login"] for reviewer in reviews_data["users"]]
-if "armin-mahina" in reviewers:
-    print("armin-mahina has already been added as a reviewer to the pull request.")
+if pr_data["mergeable_state"] != "clean":
+    print("PR is not mergeable. Exiting.")
+    exit(0)
+
+reviewers_response = requests.get(reviews_url, headers=headers)
+reviewers_data = reviewers_response.json()
+
+if not any(reviewer['user']['login'] == 'armin-mahina' and reviewer['state'] == 'APPROVED' for reviewer in reviewers_data):
+    print("armin-mahina has not approved the PR. Exiting.")
+    exit(0)
+
+# Check if "Waiting for Manual Approval" status check already exists
+statuses_response = requests.get(statuses_url, headers=headers)
+statuses_data = statuses_response.json()
+waiting_for_approval_statuses = [status for status in statuses_data if status["context"] == "Waiting for Manual Approval"]
+
+if waiting_for_approval_statuses:
+    print("Waiting for Manual Approval status check already exists.")
 else:
-    reviewers_payload = {
-        "reviewers": ["armin-mahina"]
+    status_payload = {
+        "state": "pending",
+        "description": "This PR is waiting for manual approval from armin-mahina",
+        "context": "Waiting for Manual Approval"
     }
-    reviewers_response = requests.post(reviews_url, headers=headers, json=reviewers_payload)
-    if reviewers_response.ok:
-        print("armin-mahina added as a reviewer to the pull request.")
+    status_response = requests.post(statuses_url, headers=headers, json=status_payload)
+    if status_response.ok:
+        print("Waiting for Manual Approval status check created.")
     else:
-        print(f"Failed to add armin-mahina as a reviewer to the pull request. Response: {reviewers_response.text}")
+        print(f"Failed to create Waiting for Manual Approval status check. Response: {status_response.text}")
