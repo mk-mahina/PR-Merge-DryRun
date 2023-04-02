@@ -27,8 +27,10 @@ if pr_data["state"] != "open":
 # Check if armin-mahina has been added as a reviewer to the pull request
 reviews_response = requests.get(reviews_url, headers=headers)
 reviews_data = reviews_response.json()
-reviewers = [reviewer["user"]["login"] for reviewer in reviews_data]
-if "armin-mahina" not in reviewers:
+reviewers = [reviewer["login"] for reviewer in reviews_data["users"]]
+if "armin-mahina" in reviewers:
+    print("armin-mahina has already been added as a reviewer to the pull request.")
+else:
     reviewers_payload = {
         "reviewers": ["armin-mahina"]
     }
@@ -37,14 +39,3 @@ if "armin-mahina" not in reviewers:
         print("armin-mahina added as a reviewer to the pull request.")
     else:
         print(f"Failed to add armin-mahina as a reviewer to the pull request. Response: {reviewers_response.text}")
-else:
-    # Check if Armin has approved the pull request
-    armin_review = next((review for review in reviews_data if review["user"]["login"] == "armin-mahina"), None)
-    if armin_review is None:
-        print("Armin has not reviewed the pull request yet. Exiting.")
-        exit(0)
-    elif armin_review["state"] != "approved":
-        print("Armin has not approved the pull request yet. Exiting.")
-        exit(0)
-    else:
-        print("Armin has approved the pull request. Proceeding with the merge.")
