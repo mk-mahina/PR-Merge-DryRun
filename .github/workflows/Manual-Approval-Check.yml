@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       
-      - name: PR merge check
+      - name: Manual Check
         run: python pr-merge.py
         env:
           SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
