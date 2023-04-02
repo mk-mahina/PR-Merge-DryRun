@@ -39,7 +39,7 @@ jobs:
         run: echo ${{ env.jira-issue-key }}
 
       - name: Transition Jira issue from pending PR --> pending PR QA
-        if: steps.pr-assign.outputs.success == 'true'
+        if: steps.pr-assign.outputs.success == 'true' && env.jira-issue-key != ''
         env:
           JIRA_AUTH_TOKEN: ${{ secrets.JIRA_AUTH_TOKEN }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
