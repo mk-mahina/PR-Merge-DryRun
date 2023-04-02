@@ -41,8 +41,8 @@ jobs:
       
       - name: Transition Jira issue from pending PR --> pending PR QA
         env:
-          JIRA_AUTH_TOKEN: ${{ env.JIRA_AUTH_TOKEN }}
-          JIRA_BASE_URL: ${{ env.JIRA_BASE_URL }}
+          JIRA_AUTH_TOKEN: ${{ secrets.JIRA_AUTH_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_TRANSITION_ID: "91"
         run: |    
           echo "JIRA_BASE_URL=$JIRA_BASE_URL"
