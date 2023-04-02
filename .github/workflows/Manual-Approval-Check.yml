@@ -1,25 +1,29 @@
-name: Merge Checks
+name: PR merge check
 
 on:
+  pull_request_review:
+    types: [submitted]
   pull_request:
-    types: [opened, synchronize, reopened, edited]
-    branches:
-      - "*"
-      
+    types: [opened, synchronize]
+
 jobs:
-  merge-checks:
+  merge-check:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
-
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9 # or whichever version of Python your plugin requires
-
-      - name: Install plugin dependencies
+          python-version: '3.x'
+      
+      - name: Install dependencies
         run: pip install -r requirements.txt
-
-      - name: Run plugin checks
-        run: python Manual-Approval-Check.py
+      
+      - name: Manual Check
+        run: python pr-merge.py
+        env:
+          SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
+          GITHUB_REPOSITORY: 'mk-mahina/PR-Merge-DryRun'
+          PULL_NUMBER: ${{ github.event.pull_request.number }}
