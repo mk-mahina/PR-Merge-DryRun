@@ -21,8 +21,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       
-      - name: Manual Check
-        run: python pr-merge.py
+      - name: PR Manual Check Assignment
+        run: python pr-assign.py
         env:
           SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
           GITHUB_REPOSITORY: 'mk-mahina/PR-Merge-DryRun'

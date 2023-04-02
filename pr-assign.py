@@ -31,21 +31,6 @@ reviewers = [reviewer["login"] for reviewer in reviews_data["users"]]
 
 if "armin-mahina" in reviewers:
     print("armin-mahina has already been added as a reviewer to the pull request.")
-    # Check if Armin has approved the pull request
-    reviews_url = f"{pr_url}/reviews"
-    reviews_response = requests.get(reviews_url, headers=headers)
-    reviews_data = reviews_response.json()
-    approved = False
-    for review in reviews_data:
-        if review["user"]["login"] == "armin-mahina" and review["state"] == "APPROVED":
-            approved = True
-            break
-
-    if approved:
-        print("Armin has approved the pull request. It can be merged.")
-    else:
-        print("Armin has not approved the pull request. It cannot be merged.")
-        exit(1)
 
 else:
     reviewers_payload = {
@@ -54,6 +39,5 @@ else:
     reviewers_response = requests.post(reviews_url, headers=headers, json=reviewers_payload)
     if reviewers_response.ok:
         print("armin-mahina added as a reviewer to the pull request. Waiting for the approval")
-        exit(1)
     else:
         print(f"Failed to add armin-mahina as a reviewer to the pull request. Response: {reviewers_response.text}")
