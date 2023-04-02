@@ -54,14 +54,13 @@ jobs:
             --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
             $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
 
-      - name: Check if armin-mahina has approved the pull request
-        id: check-approval
-        uses: peter-evans/wait-for-reviews@v1.3.1
-        with:
-          repo-token: ${{ secrets.SECRET_TOKEN }}
-          required-approver-ids: armin-mahina
-          review-state: APPROVED
-
-      - name: Fail if not approved by armin-mahina
-        if: steps.check-approval.outputs.approved != 'true'
-        run: exit 1
+      - name: Verify PR Approval
+        run: |
+          if [ "$(curl -s -H "Authorization: Bearer ${{ secrets.SECRET_TOKEN }}" \
+                  "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews" \
+                  | jq '.[] | select(.user.login == "armin-mahina" and .state == "APPROVED")')" = "" ]; then
+            echo "PR not approved by armin-mahina"
+            exit 1
+          else
+            echo "PR approved by armin-mahina"
+          fi      
