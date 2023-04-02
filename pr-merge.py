@@ -9,6 +9,7 @@ pull_number = os.environ['PULL_NUMBER']
 # Set API URLs
 pr_url = f"https://api.github.com/repos/{repository}/pulls/{pull_number}"
 reviews_url = f"{pr_url}/requested_reviewers"
+comments_url = f"{pr_url}/comments"
 
 # Set headers
 headers = {
@@ -53,6 +54,15 @@ else:
     }
     reviewers_response = requests.post(reviews_url, headers=headers, json=reviewers_payload)
     if reviewers_response.ok:
-        print("armin-mahina added as a reviewer to the pull request.")
+        print("armin-mahina added as a reviewer to the pull request. Waiting for the approval")
+        comment_payload = {
+            "body": "@armin-mahina Please review and approve this pull request."
+        }
+        comment_response = requests.post(comments_url, headers=headers, json=comment_payload)
+        if comment_response.ok:
+            print("Comment added to the pull request.")
+        else:
+            print(f"Failed to add comment to the pull request. Response: {comment_response.text}")
+        exit(1)
     else:
         print(f"Failed to add armin-mahina as a reviewer to the pull request. Response: {reviewers_response.text}")
