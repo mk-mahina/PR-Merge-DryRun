@@ -25,9 +25,6 @@ if pr_data["state"] != "open":
     print("PR is not open. Exiting.")
     exit(0)
 
-if pr_data["mergeable_state"] != "clean":
-    print("PR is not mergeable. Exiting.")
-    exit(0)
 
 reviewers_response = requests.get(reviews_url, headers=headers)
 reviewers_data = reviewers_response.json()
