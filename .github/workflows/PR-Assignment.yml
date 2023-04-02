@@ -54,13 +54,14 @@ jobs:
             --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
             $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
 
-      - name: Check if PR is approved by armin-mahina
-        id: check-review
-        run: |
-          if [ "${{ github.event.review.user.login }}" != "armin-mahina" ]; then
-            echo "PR not approved by armin-mahina"
-            echo "::set-output name=pull_request::false"
-          else
-            echo "PR approved by armin-mahina"
-            echo "::set-output name=pull_request::true"
-          fi
+      - name: Check if armin-mahina has approved the pull request
+        id: check-approval
+        uses: peter-evans/wait-for-reviews@v1.3.1
+        with:
+          repo-token: ${{ secrets.SECRET_TOKEN }}
+          required-approver-ids: armin-mahina
+          review-state: APPROVED
+
+      - name: Fail if not approved by armin-mahina
+        if: steps.check-approval.outputs.approved != 'true'
+        run: exit 1
