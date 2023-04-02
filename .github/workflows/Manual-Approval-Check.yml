@@ -12,15 +12,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
-      
+
       - name: Install dependencies
         run: pip install -r requirements.txt
-      
+
       - name: PR Manual Check Assignment
         id: pr-assign
         run: python pr-assign.py
@@ -28,22 +28,21 @@ jobs:
           SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
           GITHUB_REPOSITORY: 'mk-mahina/PR-Merge-DryRun'
           PULL_NUMBER: ${{ github.event.pull_request.number }}
-               
+
       - name: Get Jira issue key from branch name
         id: get-jira-issue-key
         run: |
-          echo "::set-output name=jira-issue-key::$(echo ${{ github.ref }} | sed 's/refs\/heads\///g')"
-          
+          echo "jira-issue-key=$(echo ${{ github.ref }} | sed 's/refs\/heads\///g')" >> $GITHUB_ENV
+
       - name: Transition Jira issue from pending PR --> pending PR QA
         if: steps.pr-assign.outputs.success == 'true'
         env:
           JIRA_AUTH_TOKEN: ${{ secrets.JIRA_AUTH_TOKEN }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_ISSUE_KEY: ${{ steps.get-jira-issue-key.outputs.jira-issue-key }}
           JIRA_TRANSITION_ID: "91"
         run: |
           curl -D- -u $JIRA_AUTH_TOKEN: \
             -X POST \
             -H "Content-Type: application/json" \
             --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
-            $JIRA_BASE_URL/rest/api/2/issue/$JIRA_ISSUE_KEY/transitions
+            $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
