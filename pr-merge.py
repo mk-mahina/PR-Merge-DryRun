@@ -32,9 +32,20 @@ if pr_data["mergeable_state"] != "clean":
 reviewers_response = requests.get(reviews_url, headers=headers)
 reviewers_data = reviewers_response.json()
 
-if not any(reviewer['user']['login'] == 'armin-mahina' and reviewer['state'] == 'APPROVED' for reviewer in reviewers_data):
-    print("armin-mahina has not approved the PR. Blocking the merge.")
-    exit(1)
+armin_reviewer = next((reviewer for reviewer in reviewers_data if reviewer['user']['login'] == 'armin-mahina'), None)
+if armin_reviewer is None:
+    review_payload = {
+        "body": "Please review this PR",
+        "event": "REQUEST_REVIEWER",
+        "reviewers": ["armin-mahina"]
+    }
+    review_response = requests.post(reviews_url, headers=headers, json=review_payload)
+    if review_response.ok:
+        print("armin-mahina has been added as a reviewer.")
+    else:
+        print(f"Failed to add armin-mahina as a reviewer. Response: {review_response.text}")
+else:
+    print("armin-mahina has already been added as a reviewer.")
 
 # Check if "Waiting for Manual Approval" status check already exists
 statuses_response = requests.get(statuses_url, headers=headers)
