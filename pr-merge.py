@@ -47,7 +47,12 @@ else:
 # Check if "Waiting for Manual Approval" status check already exists
 statuses_response = requests.get(statuses_url, headers=headers)
 statuses_data = statuses_response.json()
-waiting_for_approval_statuses = [status for status in statuses_data['statuses'] if status["context"] == "Waiting for Manual Approval"]
+
+if "statuses" not in statuses_data:
+    print(f"Error: statuses not found in response: {statuses_data}")
+    exit(1)
+
+waiting_for_approval_statuses = [status for status in statuses_data["statuses"] if status["context"] == "Waiting for Manual Approval"]
 
 if waiting_for_approval_statuses:
     print("Waiting for Manual Approval status check already exists.")
