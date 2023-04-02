@@ -52,4 +52,4 @@ jobs:
             -X POST \
             -H "Content-Type: application/json" \
             --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
-            $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
+            $JIRA_BASE_URL/rest/api/2/issue/MAP-1/transitions
