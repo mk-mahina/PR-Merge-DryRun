@@ -1,11 +1,3 @@
-name: PR merge check
-
-on:
-  pull_request_review:
-    types: [submitted]
-  pull_request:
-    types: [opened, synchronize]
-
 jobs:
   merge-check:
     runs-on: ubuntu-latest
@@ -34,12 +26,13 @@ jobs:
         run: |
           echo "github.head_ref=${{ github.head_ref }}"
           echo "jira-issue-key=$(echo ${{ github.head_ref }} | sed -nE 's#^([A-Z]+-[0-9]+).*#\1#p')" >> $GITHUB_ENV
-       
+      
       - name: Show Jira issue key
         run: echo ${{ env.jira-issue-key }}
 
-      
       - name: Transition Jira issue from pending PR --> pending PR QA
+        needs: PR Manual Check Assignment
+        if: ${{ success() }}
         env:
           JIRA_AUTH_TOKEN: ${{ secrets.JIRA_AUTH_TOKEN }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
@@ -52,4 +45,4 @@ jobs:
             -X POST \
             -H "Content-Type: application/json" \
             --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
-            $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
+            $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions"
