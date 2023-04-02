@@ -8,7 +8,7 @@ pull_number = os.environ['PULL_NUMBER']
 
 # Set API URLs
 pr_url = f"https://api.github.com/repos/{repository}/pulls/{pull_number}"
-reviews_url = f"{pr_url}/reviews"
+reviews_url = f"{pr_url}/requested_reviewers"
 
 # Set headers
 headers = {
