@@ -27,4 +27,3 @@ jobs:
           SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
           GITHUB_REPOSITORY: 'mk-mahina/PR-Merge-DryRun'
           PULL_NUMBER: ${{ github.event.pull_request.number }}
-          REVIEW_GATE_NAME: 'Waiting for Manual Approval'
