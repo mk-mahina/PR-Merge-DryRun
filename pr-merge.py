@@ -33,7 +33,7 @@ armin_reviewer = next((reviewer for reviewer in reviewers_data if reviewer['user
 if armin_reviewer is None:
     review_payload = {
         "body": "Please review this PR",
-        "event": "REQUEST_REVIEW",
+        "event": "REQUEST_CHANGES",
         "reviewers": ["armin-mahina"]
     }
     review_response = requests.post(reviews_url, headers=headers, json=review_payload)
@@ -69,10 +69,4 @@ else:
         status_payload = {
             "state": "pending",
             "description": f"This PR is waiting for manual approval from armin-mahina before merging. ({review_gate_name})",
-            "context": review_gate_name
-        }
-        status_response = requests.post(statuses_url, headers=headers, json=status_payload)
-        if status_response.ok:
-            print(f"{review_gate_name} status check created.")
-        else:
-            print(f"Failed to create {review_gate_name} status check. Response: {status_response.text}")
+            "context": review_gate
