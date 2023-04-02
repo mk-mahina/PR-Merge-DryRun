@@ -43,11 +43,12 @@ jobs:
         env:
           JIRA_AUTH_TOKEN: ${{ secrets.JIRA_AUTH_TOKEN }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER: ${{ secrets.JIRA_USER }}          
           JIRA_TRANSITION_ID: "91"
         run: |    
           echo "jira-issue-key=${{ env.jira-issue-key }}"
           echo "JIRA_TRANSITION_ID=$JIRA_TRANSITION_ID"
-          curl -D- -u mk@mahina.dev:ATATT3xFfGF0mLkVSfDsYPEL0kg0rqRYfyzJ1G3625by-VqNA_dKBRCrc2fNqXewjUgbveYv1Sg_VS0lOPVpF_meOHsu1iJ-N5jVhK_DVgjJq7pF7Ff22n4R1F7weC9lYlCCeDGEUsNYLbI9uoqlZriq4jbvWGSONoMCtLaQRka5lmn9ptTwO7g=09312796 \
+          curl -D- -u $JIRA_USER:$JIRA_AUTH_TOKEN \
             -X POST \
             -H "Content-Type: application/json" \
             --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
