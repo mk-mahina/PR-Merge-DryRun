@@ -60,7 +60,12 @@ jobs:
                   "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews" \
                   | jq '.[] | select(.user.login == "armin-mahina" and .state == "APPROVED")')" = "" ]; then
             echo "PR not approved by armin-mahina"
+            curl -X POST \
+              -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d '{"body": "Waiting for the approval from @armin-mahina before merging."}' \
+              "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
             exit 1
           else
             echo "PR approved by armin-mahina"
-          fi      
+          fi
