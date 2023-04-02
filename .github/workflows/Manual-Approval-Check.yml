@@ -42,10 +42,13 @@ jobs:
         env:
           JIRA_AUTH_TOKEN: ${{ secrets.JIRA_AUTH_TOKEN }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_TRANSITION_ID: "71"
+          JIRA_TRANSITION_ID: "91"
         run: |
-          curl -D- -u $JIRA_AUTH_TOKEN: \
+          curl -D- -H "Authorization: Bearer $JIRA_AUTH_TOKEN" \
             -X POST \
             -H "Content-Type: application/json" \
             --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
             $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
+
+
+
