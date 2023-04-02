@@ -51,5 +51,5 @@ jobs:
           curl -D- -H "Authorization: Bearer $JIRA_AUTH_TOKEN" \
             -X POST \
             -H "Content-Type: application/json" \
-            --data "{\"transition\": {\"id\": \"$JIRA_TRANSITION_ID\"}}" \
+            --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
             $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
