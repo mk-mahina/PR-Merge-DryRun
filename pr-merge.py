@@ -70,3 +70,4 @@ else:
             "state": "pending",
             "description": f"This PR is waiting for manual approval from armin-mahina before merging. ({review_gate_name})",
             "context": review_gate
+        }
