@@ -52,9 +52,9 @@ jobs:
             $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
 
       - name: Wait for QA Approval
-        uses: reviewdog/wait-for-approval@v1.0.0
+        uses: marvinpinto/action-pull-request-approvals@v2
         with:
-          token: ${{ secrets.SECRET_TOKEN }}
-          approvals: 1
-          reviewers: armin-mahina 
-          comment: 'Waiting for the approval from @armin-mahina before merging'
+          github-token: ${{ secrets.SECRET_TOKEN }}
+          approvals-count: 1
+          approvers: armin-mahina
+          pull-request-comment: 'Waiting for the approval from @armin-mahina before merging'
