@@ -1,9 +1,9 @@
 name: PR Assignment
 
 on:
-  pull_request_review:
-    types: [submitted]
-
+  pull_request:
+    types: [opened, synchronize, reopened]
+    
 jobs:
   merge-check:
     runs-on: ubuntu-latest    
@@ -58,3 +58,10 @@ jobs:
           approvals-count: 1
           approvers: armin-mahina
           pull-request-comment: 'Waiting for the approval from @armin-mahina before merging'
+
+      - name: Assign PR to second reviewer
+        uses: peter-evans/create-or-update-pull-request-review-request@v1
+        with:
+          github-token: ${{ secrets.SECRET_TOKEN }}
+          reviewers: armin-mahina
+          message: 'Waiting for the approval from @armin-mahina before merging'
