@@ -4,7 +4,6 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
 
-
 jobs:
   merge-check:
     runs-on: ubuntu-latest
@@ -12,7 +11,7 @@ jobs:
     steps:
       - name: Print review state and reviewer
         run: |
-          echo "Review state: ${{ github.event.pull_request.reviews[0].state }}"
-          echo "Reviewer: ${{ github.event.pull_request.reviews[0].user.login }}"
+          echo "Review state: ${{ github.event.pull_request.reviews[-1].state }}"
+          echo "Reviewer: ${{ github.event.pull_request.reviews[-1].user.login }}"
       - name: Checkout code
         uses: actions/checkout@v2
