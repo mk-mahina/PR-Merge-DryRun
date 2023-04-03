@@ -3,7 +3,7 @@ name: PR Assignment
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    
+
 jobs:
   merge-check:
     runs-on: ubuntu-latest    
@@ -51,16 +51,8 @@ jobs:
             --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
             $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
 
-      - name: Wait for QA Approval
-        uses: marvinpinto/action-pull-request-approvals@v2
-        with:
-          github-token: ${{ secrets.SECRET_TOKEN }}
-          approvals-count: 1
-          approvers: armin-mahina
-          pull-request-comment: 'Waiting for the approval from @armin-mahina before merging'
-
       - name: Assign PR to second reviewer
-        uses: peter-evans/create-or-update-pull-request-review-request@v1
+        uses: peter-evans/request-info@v1
         with:
           github-token: ${{ secrets.SECRET_TOKEN }}
           reviewers: armin-mahina
