@@ -11,12 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     if: >
       github.event.pull_request.state == 'open' &&
-      github.event.pull_request.reviews.nodes[0].state == 'APPROVED' &&
-      github.event.pull_request.reviews.nodes[0].author.login == 'yonaskolb'
+      github.event.review.state == 'approved' &&
+      github.event.review.user.login == 'yonaskolb'
     steps:
-      - name: Print review state and reviewer
+      - name: Debug info
         run: |
-          echo "Review state: ${{ github.event.pull_request.reviews.nodes[0].state }}"
-          echo "Reviewer: ${{ github.event.pull_request.reviews.nodes[0].author.login }}"
+          echo "Pull request state: ${{ github.event.pull_request.state }}"
+          echo "Review state: ${{ github.event.review.state }}"
+          echo "Reviewer: ${{ github.event.review.user.login }}"
       - name: Checkout code
         uses: actions/checkout@v2
