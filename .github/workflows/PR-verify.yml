@@ -1,19 +1,13 @@
 name: PR Troubleshooting
 
 on:
-  pull_request_review:
-    types: [submitted]
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, reopened, closed]
 
 jobs:
   merge-check:
     runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.state == 'open' }}
+    if: ${{ github.event.pull_request.state == 'approved' }}
     steps:
-      - name: Print review state and reviewer
-        run: |
-          echo "Review state: ${{ github.event.review.state }}"
-          echo "Reviewer: ${{ github.event.review.user.login }}"
       - name: Checkout code
         uses: actions/checkout@v2
