@@ -1,0 +1,16 @@
+name: Run action on PR approval
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Trigger the action when the PR is approved
+      - name: Run action on approval
+        if: github.event.review.state == 'approved'
+        run: echo "The pull request has been approved!"
