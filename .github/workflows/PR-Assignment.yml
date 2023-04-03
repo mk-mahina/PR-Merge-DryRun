@@ -66,3 +66,25 @@ jobs:
           else
             echo "PR approved by armin-mahina"
           fi
+
+      - name: Wait for QA Approval
+        id: approval
+        uses: thollander/actions-wait-for-approval@v1.3.0
+        with:
+          github-token: ${{ secrets.SECRET_TOKEN }}
+          approval-count: 2
+          approvers: armin-mahina 
+          time-out: 99999h
+
+      - name: Add comment to PR body
+        if: steps.approval.outputs.approved == 'false'
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.SECRET_TOKEN }}
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Waiting for the approval from @armin-mahina before merging.'
+            })
