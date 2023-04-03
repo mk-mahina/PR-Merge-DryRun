@@ -2,12 +2,15 @@ name: PR Troubleshooting
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize, closed]
+    types: [opened, synchronize]
+  pull_request_review:
+    types: [submitted]
 
 jobs:
-  test:
+  merge-check:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.state == 'open' && github.event.pull_request.reviews[0].state == 'approved'
     steps:
-      - name: Print payload
+      - name: Print review state and reviewer
         run: |
-          echo ${{ toJson(github.event) }}
+          echo "Review state: ${{ github.event.pull_request.reviews[0].state }}"
