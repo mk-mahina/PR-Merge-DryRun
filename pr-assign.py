@@ -16,7 +16,6 @@ headers = {
     "Authorization": f"token {token}"
 }
 
-
 # Check if armin-mahina has been added as a reviewer to the pull request
 reviews_response = requests.get(reviews_url, headers=headers)
 reviews_data = reviews_response.json()
