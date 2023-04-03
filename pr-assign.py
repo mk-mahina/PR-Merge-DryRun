@@ -17,12 +17,12 @@ headers = {
 }
 
 # Check if the pull request is approved
-pr_response = requests.get(pr_url, headers=headers)
-pr_data = pr_response.json()
+#pr_response = requests.get(pr_url, headers=headers)
+#pr_data = pr_response.json()
 
-if pr_data["state"] != "approved":
-    print("PR is not approved. Exiting.")
-    exit(1)
+#if pr_data["state"] != "approved":
+#    print("PR is not approved. Exiting.")
+#    exit(1)
 
 # Check if armin-mahina has been added as a reviewer to the pull request
 reviews_response = requests.get(reviews_url, headers=headers)
