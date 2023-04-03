@@ -21,14 +21,12 @@ jobs:
       - name: Get Jira issue key from branch name
         id: get-jira-issue-key
         run: |
-          echo "github.head_ref=${{ github.head_ref }}"
-          echo "JIRA_ISSUE_KEY=$(echo ${{ github.head_ref }} | sed -nE 's#^([A-Z]+-[0-9]+).*#\1#p')" >> $GITHUB_ENV
-          
-      - name: Show Jira issue key format 1
-        run: echo $JIRA_ISSUE_KEY
+          echo "github.event.pull_request.head.ref=${{ github.event.pull_request.head.ref }}"
+          echo "jira-issue-key=$(echo ${{ github.event.pull_request.head.ref }} | sed -nE 's#^([A-Z]+-[0-9]+).*#\1#p')" >> $GITHUB_ENV
 
-      - name: Show Jira issue key format 2
+      - name: Show Jira issue key
         run: echo ${{ env.jira-issue-key }}
+
 
       - name: Transition Jira issue to pending PR QA
         env:
@@ -37,10 +35,10 @@ jobs:
           JIRA_USER: ${{ secrets.JIRA_USER }}          
           JIRA_TRANSITION_ID: "91"
         run: |    
-          echo "JIRA_ISSUE_KEY=$JIRA_ISSUE_KEY"
+          echo "jira-issue-key=${{ env.jira-issue-key }}"
           echo "JIRA_TRANSITION_ID=$JIRA_TRANSITION_ID"
           curl -D- -u $JIRA_USER:$JIRA_AUTH_TOKEN \
             -X POST \
             -H "Content-Type: application/json" \
             --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
-            $JIRA_BASE_URL/rest/api/2/issue/$JIRA_ISSUE_KEY/transitions
+            $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
