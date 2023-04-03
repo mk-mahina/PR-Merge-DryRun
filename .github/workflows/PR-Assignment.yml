@@ -51,40 +51,10 @@ jobs:
             --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
             $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
 
-      - name: Verify PR Approval
-        run: |
-          if [ "$(curl -s -H "Authorization: Bearer ${{ secrets.SECRET_TOKEN }}" \
-                  "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews" \
-                  | jq '.[] | select(.user.login == "armin-mahina" and .state == "APPROVED")')" = "" ]; then
-            echo "PR not approved by armin-mahina"
-            curl -X POST \
-              -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" \
-              -H "Content-Type: application/json" \
-              -d '{"body": "Waiting for the approval from @armin-mahina before merging."}' \
-              "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
-            exit 1
-          else
-            echo "PR approved by armin-mahina"
-          fi
-
       - name: Wait for QA Approval
-        id: approval
-        uses: thollander/actions-wait-for-approval@v1.3.0
+        uses: reviewdog/wait-for-approval@v1.0.0
         with:
-          github-token: ${{ secrets.SECRET_TOKEN }}
-          approval-count: 2
-          approvers: armin-mahina 
-          time-out: 99999h
-
-      - name: Add comment to PR body
-        if: steps.approval.outputs.approved == 'false'
-        uses: actions/github-script@v4
-        with:
-          github-token: ${{ secrets.SECRET_TOKEN }}
-          script: |
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: 'Waiting for the approval from @armin-mahina before merging.'
-            })
+          token: ${{ secrets.SECRET_TOKEN }}
+          approvals: 1
+          reviewers: armin-mahina 
+          comment: 'Waiting for the approval from @armin-mahina before merging'
