@@ -12,9 +12,11 @@ jobs:
   merge-check:
     runs-on: ubuntu-latest
     if: >
+      github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
-      github.event.review.submitted_at == github.event.pull_request.created_at &&
-      github.event.review.user.login != 'armin-mahina'
+      github.event.review.user.login != 'armin-mahina' &&
+      github.event.review.submitted_at == github.event.pull_request.updated_at
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
