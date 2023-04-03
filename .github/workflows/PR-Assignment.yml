@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >
       github.event.review.state == 'approved' &&
-      github.event.review.user.login != 'armin-mahina' &&
+      github.event.review.user.login != 'armin-mahina'
 
     steps:
       - name: Checkout code
