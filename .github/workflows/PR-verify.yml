@@ -9,8 +9,13 @@ on:
 jobs:
   merge-check:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.state == 'open' && github.event.pull_request.reviews[0].state == 'approved'
+    if: >
+      github.event.pull_request.state == 'open' &&
+      contains(github.event.pull_request.labels.*.name, 'approved')
     steps:
       - name: Print review state and reviewer
         run: |
-          echo "Review state: ${{ github.event.pull_request.reviews[0].state }}"
+          echo "Review state: ${{ github.event.review.state }}"
+          echo "Reviewer: ${{ github.event.review.user.login }}"
+      - name: Checkout code
+        uses: actions/checkout@v2
