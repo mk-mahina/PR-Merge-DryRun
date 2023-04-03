@@ -1,22 +1,11 @@
 name: PR Assignment
-
 on:
   pull_request_review:
     types: [submitted]
-    properties:
-      review: approved
-  pull_request:
-    types: [opened, synchronize]
 
 jobs:
   merge-check:
-    runs-on: ubuntu-latest
-    if: >
-      github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.review.user.login != 'armin-mahina' &&
-      github.event.review.submitted_at == github.event.pull_request.updated_at
-
+    runs-on: ubuntu-latest    
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -29,6 +18,15 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Get Jira issue key from branch name
+        id: get-jira-issue-key
+        run: |
+          echo "github.event.pull_request.head.ref=${{ github.event.pull_request.head.ref }}"
+          echo "jira-issue-key=$(echo ${{ github.event.pull_request.head.ref }} | sed -nE 's#^([A-Z]+-[0-9]+).*#\1#p')" >> $GITHUB_ENV
+
+      - name: Show Jira issue key
+        run: echo ${{ env.jira-issue-key }}
+
       - name: PR Manual Check Assignment
         id: pr-assign
         run: python pr-assign.py
@@ -37,21 +35,12 @@ jobs:
           GITHUB_REPOSITORY: 'mk-mahina/PR-Merge-DryRun'
           PULL_NUMBER: ${{ github.event.pull_request.number }}
 
-      - name: Get Jira issue key from branch name
-        id: get-jira-issue-key
-        run: |
-          echo "github.head_ref=${{ github.head_ref }}"
-          echo "jira-issue-key=$(echo ${{ github.head_ref }} | sed -nE 's#^([A-Z]+-[0-9]+).*#\1#p')" >> $GITHUB_ENV
-
-      - name: Show Jira issue key
-        run: echo ${{ env.jira-issue-key }}
-
       - name: Transition Jira issue to pending PR QA
         env:
           JIRA_AUTH_TOKEN: ${{ secrets.JIRA_AUTH_TOKEN }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_USER: ${{ secrets.JIRA_USER }}          
-          JIRA_TRANSITION_ID: "91"
+          JIRA_TRANSITION_ID: "71"
         run: |    
           echo "jira-issue-key=${{ env.jira-issue-key }}"
           echo "JIRA_TRANSITION_ID=$JIRA_TRANSITION_ID"
@@ -60,19 +49,3 @@ jobs:
             -H "Content-Type: application/json" \
             --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
             $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
-
-      - name: Verify PR Approval
-        run: |
-          if [ "$(curl -s -H "Authorization: Bearer ${{ secrets.SECRET_TOKEN }}" \
-                  "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews" \
-                  | jq '.[] | select(.user.login == "armin-mahina" and .state == "APPROVED")')" = "" ]; then
-            echo "PR not approved by armin-mahina"
-            curl -X POST \
-              -H "Authorization: token ${{ secrets.SECRET_TOKEN }}" \
-              -H "Content-Type: application/json" \
-              -d '{"body": "Waiting for the approval from @armin-mahina before merging."}' \
-              "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
-            exit 1
-          else
-            echo "PR approved by armin-mahina"
-          fi
