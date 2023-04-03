@@ -9,10 +9,12 @@ on:
 jobs:
   merge-check:
     runs-on: ubuntu-latest
+
     if: >
       github.event.pull_request.state == 'open' &&
-      github.event.review.state == 'approved' &&
-      github.event.review.user.login == 'yonaskolb'
+      github.event.pull_request.reviews.nodes[0].state == 'APPROVED' &&
+      github.event.pull_request.reviews.nodes[0].author.login == 'yonaskolb'
+
     steps:
       - name: Debug info
         run: |
