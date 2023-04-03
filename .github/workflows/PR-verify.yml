@@ -1,17 +1,15 @@
 name: PR Troubleshooting
 
 on:
-  pull_request:
-    types: [opened, synchronize]
   pull_request_review:
     types: [submitted]
+    properties:
+      review: approved
 
 jobs:
   merge-check:
     runs-on: ubuntu-latest
-    if: >
-      github.event.pull_request.state == 'open' &&
-      contains(github.event.pull_request.labels.*.name, 'approved')
+    if: ${{ github.event.pull_request.state == 'open' }}
     steps:
       - name: Print review state and reviewer
         run: |
