@@ -9,16 +9,14 @@ on:
 jobs:
   merge-check:
     runs-on: ubuntu-latest
-
     if: >
       github.event.pull_request.state == 'open' &&
-      github.event.pull_request.reviews.nodes[0].state == 'APPROVED' &&
-      github.event.pull_request.reviews.nodes[0].author.login == 'yonaskolb'
-
+      github.event.pull_request.head.user.login == 'yonaskolb' &&
+      github.event.review.state == 'approved' &&
+      github.event.review.user.login == 'yonaskolb'
     steps:
-      - name: Debug info
+      - name: Print review state and reviewer
         run: |
-          echo "Pull request state: ${{ github.event.pull_request.state }}"
           echo "Review state: ${{ github.event.review.state }}"
           echo "Reviewer: ${{ github.event.review.user.login }}"
       - name: Checkout code
