@@ -3,8 +3,8 @@ name: PR Troubleshooting
 on:
   pull_request_review:
     types: [submitted]
-    properties:
-      review: approved
+  pull_request:
+    types: [opened, synchronize]
 
 jobs:
   merge-check:
