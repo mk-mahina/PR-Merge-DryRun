@@ -1,14 +1,18 @@
 name: PR Troubleshooting
 
 on:
-  pull_request_review:
-    types: [submitted]
   pull_request:
     types: [opened, synchronize]
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   merge-check:
     runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.state == 'open' &&
+      github.event.review.state == 'approved' &&
+      github.event.review.user.login != 'armin-mahina'
     steps:
       - name: Print review state and reviewer
         run: |
