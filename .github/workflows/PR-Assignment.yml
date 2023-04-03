@@ -5,8 +5,6 @@ on:
     types: [submitted]
     properties:
       review: approved
-  pull_request:
-    types: [opened, synchronize]
 
 jobs:
   merge-check:
