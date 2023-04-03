@@ -11,9 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >
       github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.review.user.login != 'armin-mahina' &&
-      github.event.review.submitted_at == github.event.pull_request.updated_at
+      github.event.review.state == 'approved' 
 
     steps:
       - name: Checkout code
