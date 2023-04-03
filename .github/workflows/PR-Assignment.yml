@@ -11,9 +11,12 @@ on:
 jobs:
   merge-check:
     runs-on: ubuntu-latest
-    if: github.event.review.state == 'approved' && github.event.pull_request.user.login != 'armin-mahina' && startsWith(github.event.review.submitted_at, github.event.pull_request.created_at)
+    if: >
+      github.event.review.state == 'approved' &&
+      github.event.review.submitted_at == github.event.pull_request.created_at &&
+      github.event.review.user.login != 'armin-mahina'
     steps:
-      - name: Checkout code
+     - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set up Python
