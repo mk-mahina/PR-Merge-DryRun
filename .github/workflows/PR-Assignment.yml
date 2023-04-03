@@ -27,6 +27,13 @@ jobs:
       - name: Show Jira issue key
         run: echo ${{ env.jira-issue-key }}
 
+      - name: PR Manual Check Assignment
+        id: pr-assign
+        run: python pr-assign.py
+        env:
+          SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
+          GITHUB_REPOSITORY: 'mk-mahina/PR-Merge-DryRun'
+          PULL_NUMBER: ${{ github.event.pull_request.number }}
 
       - name: Transition Jira issue to pending PR QA
         env:
