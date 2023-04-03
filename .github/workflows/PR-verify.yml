@@ -9,7 +9,7 @@ on:
 jobs:
   merge-check:
     if: >
-      github.event.review.state == 'approved' 
+      github.event.pull_request.state == 'approved' 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
