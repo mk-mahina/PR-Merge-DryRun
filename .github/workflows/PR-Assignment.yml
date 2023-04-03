@@ -22,18 +22,13 @@ jobs:
         id: get-jira-issue-key
         run: |
           echo "github.head_ref=${{ github.head_ref }}"
-          echo "jira-issue-key=$(echo ${{ github.head_ref }} | sed -nE 's#^([A-Z]+-[0-9]+).*#\1#p')" >> $GITHUB_ENV
+          echo "JIRA_ISSUE_KEY=$(echo ${{ github.head_ref }} | sed -nE 's#^([A-Z]+-[0-9]+).*#\1#p')" >> $GITHUB_ENV
+          
+      - name: Show Jira issue key format 1
+        run: echo $JIRA_ISSUE_KEY
 
-      - name: Show Jira issue key
+      - name: Show Jira issue key format 2
         run: echo ${{ env.jira-issue-key }}
-
-      - name: PR Manual Check Assignment
-        id: pr-assign
-        run: python pr-assign.py
-        env:
-          SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}
-          GITHUB_REPOSITORY: 'mk-mahina/PR-Merge-DryRun'
-          PULL_NUMBER: ${{ github.event.pull_request.number }}
 
       - name: Transition Jira issue to pending PR QA
         env:
@@ -42,10 +37,10 @@ jobs:
           JIRA_USER: ${{ secrets.JIRA_USER }}          
           JIRA_TRANSITION_ID: "91"
         run: |    
-          echo "jira-issue-key=${{ env.jira-issue-key }}"
+          echo "JIRA_ISSUE_KEY=$JIRA_ISSUE_KEY"
           echo "JIRA_TRANSITION_ID=$JIRA_TRANSITION_ID"
           curl -D- -u $JIRA_USER:$JIRA_AUTH_TOKEN \
             -X POST \
             -H "Content-Type: application/json" \
             --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
-            $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
+            $JIRA_BASE_URL/rest/api/2/issue/$JIRA_ISSUE_KEY/transitions
