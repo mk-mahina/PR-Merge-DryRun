@@ -12,13 +12,13 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Get pull request status
-      id: pr-status
-      run: echo "::set-output name=status::${{ github.event.pull_request.state }}"
-    - name: Use pull request status
+
+    - name: Get pull request review status
       run: |
-        if [ "${{ steps.pr-status.outputs.status }}" == "approved" ]; then
-          echo "Pull request is approved"
+        latest_review_state=$(echo "${{ github.event.pull_request.reviews[-1].state }}")
+        review_decision=$(echo "${{ github.event.pull_request.review_decision }}")
+        if [ "$latest_review_state" == "APPROVED" ] || [ "$review_decision" == "approved" ]; then
+          echo "Pull request has been approved"
         else
-          echo "Pull request is not approved"
+          echo "Pull request has not been approved"
         fi
