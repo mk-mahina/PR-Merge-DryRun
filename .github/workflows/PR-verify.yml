@@ -9,7 +9,7 @@ on:
 jobs:
   merge-check:
     if: >
-      github.event.review.user.login != 'armin-mahina'
+      github.event.review.state == 'approved' 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
