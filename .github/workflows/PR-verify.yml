@@ -7,13 +7,18 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  merge-check:
-    if: >
-      github.event.pull_request.state == 'approved' 
+  check-status:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Debug User Login
-        run: |
-          echo "User Login: ${{ github.event.review.user.login }}"
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Get pull request status
+      id: pr-status
+      run: echo "::set-output name=status::${{ github.event.pull_request.state }}"
+    - name: Use pull request status
+      run: |
+        if [ "${{ steps.pr-status.outputs.status }}" == "approved" ]; then
+          echo "Pull request is approved"
+        else
+          echo "Pull request is not approved"
+        fi
