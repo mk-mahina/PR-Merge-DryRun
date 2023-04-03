@@ -1,8 +1,7 @@
 name: PR Assignment
-
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   merge-check:
@@ -50,10 +49,3 @@ jobs:
             -H "Content-Type: application/json" \
             --data '{"transition": {"id": "'"$JIRA_TRANSITION_ID"'"}}' \
             $JIRA_BASE_URL/rest/api/2/issue/${{ env.jira-issue-key }}/transitions
-
-      - name: Assign PR to second reviewer
-        uses: peter-evans/request-info@v1
-        with:
-          github-token: ${{ secrets.SECRET_TOKEN }}
-          reviewers: armin-mahina
-          message: 'Waiting for the approval from @armin-mahina before merging'
