@@ -8,11 +8,13 @@ on:
 
 jobs:
   merge-check:
-    runs-on: ubuntu-latest    
-    if: >
-      github.event.review.state == 'APPROVED' &&
-      github.event.review.user.login != 'armin-mahina'
-  
+ 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Debug User Login
+        run: |
+          echo "User Login: ${{ github.event.review.user.login }}"
+      - name: Debug Review State
+        run: |
+          echo "Review State: ${{ github.event.review.state }}"
+
+  
