@@ -1,16 +1,18 @@
-name: PR Troubleshooting
+name: PR Assignment
 
 on:
+  pull_request_review:
+    types: [submitted]
   pull_request:
+    types: [opened, synchronize]
 
 jobs:
   merge-check:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.state == 'open' }}
+    runs-on: ubuntu-latest    
+    if: >
+      github.event.review.state == 'approved' &&
+      github.event.review.user.login != 'armin-mahina'
+  
     steps:
-      - name: Print review state and reviewer
-        run: |
-          echo "Review state: ${{ github.event.pull_request.reviews[-1].state }}"
-          echo "Reviewer: ${{ github.event.pull_request.reviews[-1].user.login }}"
       - name: Checkout code
         uses: actions/checkout@v2
