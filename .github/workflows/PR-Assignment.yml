@@ -16,8 +16,8 @@ jobs:
       github.event.review.submitted_at == github.event.pull_request.created_at &&
       github.event.review.user.login != 'armin-mahina'
     steps:
-     - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout code
+          uses: actions/checkout@v2
 
       - name: Set up Python
         uses: actions/setup-python@v2
