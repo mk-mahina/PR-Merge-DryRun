@@ -16,7 +16,7 @@ jobs:
       github.event.review.state == 'approved' &&
       github.event.review.user.login != 'armin-mahina' &&
       github.event.review.submitted_at == github.event.pull_request.updated_at
-      
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -74,4 +74,5 @@ jobs:
               "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
             exit 1
           else
-            echo "PR approved by armin-m
+            echo "PR approved by armin-mahina"
+          fi
